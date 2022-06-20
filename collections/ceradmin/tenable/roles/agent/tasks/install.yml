@@ -111,7 +111,7 @@
     - nessus_link_status.stdout.find(TENABLE_PORT|string) == -1
     - nessus_agent_service_status.stdout.find("active (running)") == -1
 
-- name: TESTING BLOCK
+- name: Agent had already been running
   debug:
     msg:
       - "THIS VM HAS NESSUS AGENT INSTALLED AND LINKED, AND IT IS CURRENTLY RUNNING."
