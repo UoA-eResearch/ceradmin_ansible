@@ -2,8 +2,8 @@
 # tasks file for deploy
 - name: Define Variables for CentOS 8/Rocky 8
   set_fact:
-    agent_file_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-es8.x86_64.rpm"
-    agent_file_dest: /tmp/NessusAgent-10.1.4-es8.x86_64.rpm
+    agent_installer_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-es8.x86_64.rpm"
+    agent_installer_dest: /tmp/NessusAgent-10.1.4-es8.x86_64.rpm
   when: (ansible_facts['distribution'] == "CentOS" and
          ansible_facts['distribution_major_version'] == "8") or
         (ansible_facts['distribution'] == "Rocky" and
@@ -11,30 +11,30 @@
 
 - name: Define Variables for CentOS 7
   set_fact:
-    agent_file_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-es7.x86_64.rpm"
-    agent_file_dest: /tmp/NessusAgent-10.1.4-es7.x86_64.rpm
+    agent_installer_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-es7.x86_64.rpm"
+    agent_installer_dest: /tmp/NessusAgent-10.1.4-es7.x86_64.rpm
   when:
     - ansible_facts['distribution'] == "CentOS"
     - ansible_facts['distribution_major_version'] == "7"
 
 - name: Define Variables for Fedora
   set_fact:
-    agent_file_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-fc20.x86_64.rpm"
-    agent_file_dest: /tmp/NessusAgent-10.1.4-fc20.x86_64.rpm
+    agent_installer_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-fc20.x86_64.rpm"
+    agent_installer_dest: /tmp/NessusAgent-10.1.4-fc20.x86_64.rpm
   when:
     - ansible_facts['distribution'] == "Fedora"
 
 - name: Define Variables for Ubuntu
   set_fact:
-    agent_file_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-ubuntu1110_amd64.deb"
-    agent_file_dest: /tmp/NessusAgent-10.1.4-ubuntu1110_amd64.deb
+    agent_installer_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-ubuntu1110_amd64.deb"
+    agent_installer_dest: /tmp/NessusAgent-10.1.4-ubuntu1110_amd64.deb
   when:
     - ansible_facts['distribution'] == "Ubuntu"
 
 - name: Define Variables for Debian
   set_fact:
-    agent_file_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-debian6_amd64.deb"
-    agent_file_dest: /tmp/NessusAgent-10.1.4-debian6_amd64.deb
+    agent_installer_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-debian6_amd64.deb"
+    agent_installer_dest: /tmp/NessusAgent-10.1.4-debian6_amd64.deb
   when:
     - ansible_facts['distribution'] == "Debian"
 
@@ -67,15 +67,15 @@
 
 - name: Copy installation package to server
   copy:
-    src: "{{ agent_file_src }}"
-    dest: "{{ agent_file_dest }}"
+    src: "{{ agent_installer_src }}"
+    dest: "{{ agent_installer_dest }}"
   when:
     - nessus_link_status.stdout.find(TENABLE_HOST|string) == -1
     - nessus_link_status.stdout.find(TENABLE_PORT|string) == -1
 
 - name: Install Nessus Agent rpm from a local file for CentOS/Fedora/Rocky
   yum:
-    name: "{{ agent_file_dest }}"
+    name: "{{ agent_installer_dest }}"
     state: present
     disable_gpg_check: yes
   when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and
@@ -86,7 +86,7 @@
 
 - name: Install Nessus Agent deb from a local file for Ubuntu/Debian
   apt:
-    deb: "{{ agent_file_dest }}"
+    deb: "{{ agent_installer_dest }}"
   when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and
         nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and
         (ansible_facts['distribution'] == "Ubuntu" or
@@ -110,6 +110,11 @@
     - nessus_link_status.stdout.find(TENABLE_HOST|string) == -1
     - nessus_link_status.stdout.find(TENABLE_PORT|string) == -1
     - nessus_agent_service_status.stdout.find("active (running)") == -1
+
+- name: Clean up agent installer
+  file:
+    path: "{{ agent_installer_dest }}"
+    state: absent
 
 - name: Agent had already been running
   debug:
