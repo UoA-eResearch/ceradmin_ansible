@@ -1,0 +1,23 @@
+---
+# tasks file for nectar_external
+- name: Create account
+  user:
+    name: "{{ management_user }}"
+    comment: Security-related account set up by the Centre for eResearch. Please do not delete.
+    create_home: yes
+    shell: /bin/bash
+    expires: -1
+
+- name: Configure authorized_keys file
+  ansible.posix.authorized_key:
+    user: "{{ management_user }}"
+    state: present
+    key: "{{ management_user_public_key }}"
+
+- name: Configure passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: "^{{ management_user }}"
+    line: "{{ management_user }} ALL=(ALL) NOPASSWD: ALL"
+    validate: "visudo -cf %s"

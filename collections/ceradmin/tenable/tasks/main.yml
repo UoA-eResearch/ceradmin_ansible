@@ -1,0 +1,3 @@
+---
+# tasks file for agent
+- include_tasks: deploy_agent.yml
