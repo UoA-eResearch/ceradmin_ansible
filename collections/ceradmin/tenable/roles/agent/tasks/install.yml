@@ -75,13 +75,15 @@
     deb: "{{ agent_file_dest }}"
   when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and (ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian")
 
+- name: Tenable linking command
+  debug:
+    msg: "/opt/nessus_agent/sbin/nessuscli agent link --host={{ TENABLE_HOST }} --port={{ TENABLE_PORT }} --key={{ TENABLE_LINKING_KEY }} --groups={{ TENABLE_AGENT_GROUP }} --name={{ tenable_agent_name }}"
+
 - name: Link nessus agent to tenable
   shell: /opt/nessus_agent/sbin/nessuscli agent link --host={{ TENABLE_HOST }} --port={{ TENABLE_PORT }} --key={{ TENABLE_LINKING_KEY }} --groups={{ TENABLE_AGENT_GROUP }} --name={{ tenable_agent_name }}
   when:
     - nessus_link_status.stdout.find(TENABLE_HOST|string) == -1
     - nessus_link_status.stdout.find(TENABLE_PORT|string) == -1
-  debug:
-    msg: "/opt/nessus_agent/sbin/nessuscli agent link --host={{ TENABLE_HOST }} --port={{ TENABLE_PORT }} --key={{ TENABLE_LINKING_KEY }} --groups={{ TENABLE_AGENT_GROUP }} --name={{ tenable_agent_name }}"
 
 - name: Starting Nessus Agent service
   command: systemctl start nessusagent
