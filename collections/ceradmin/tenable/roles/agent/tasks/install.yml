@@ -4,7 +4,10 @@
   set_fact:
     agent_file_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-es8.x86_64.rpm"
     agent_file_dest: /tmp/NessusAgent-10.1.4-es8.x86_64.rpm
-  when: (ansible_facts['distribution'] == "CentOS" and ansible_facts['distribution_major_version'] == "8") or (ansible_facts['distribution'] == "Rocky" and ansible_facts['distribution_major_version'] == "8")
+  when: (ansible_facts['distribution'] == "CentOS" and
+         ansible_facts['distribution_major_version'] == "8") or
+        (ansible_facts['distribution'] == "Rocky" and
+         ansible_facts['distribution_major_version'] == "8")
 
 - name: Define Variables for CentOS 7
   set_fact:
@@ -47,13 +50,20 @@
   debug:
     msg:
       - "THIS VM IS RUNNING CENTOS OR FEDORA OR ROCKY, AND THE AGENT IS NOT YET INSTALLED."
-  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and (ansible_facts['distribution'] == "CentOS" or ansible_facts['distribution'] == "Fedora" or ansible_facts['distribution'] == "Rocky")
+  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and
+        nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and
+        (ansible_facts['distribution'] == "CentOS" or
+         ansible_facts['distribution'] == "Fedora" or
+         ansible_facts['distribution'] == "Rocky")
 
 - name: TESTING BLOCK FOR Ubuntu/Debian
   ansible.builtin.debug:
     msg:
       - "THIS VM IS RUNNING UBUNTU OR DEBIAN, AND THE AGENT IS NOT YET INSTALLED."
-  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and (ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian")
+  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and
+        nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and
+        (ansible_facts['distribution'] == "Ubuntu" or
+         ansible_facts['distribution'] == "Debian")
 
 - name: Copy installation package to server
   copy:
@@ -68,19 +78,28 @@
     name: "{{ agent_file_dest }}"
     state: present
     disable_gpg_check: yes
-  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and (ansible_facts['distribution'] == "CentOS" or ansible_facts['distribution'] == "Fedora" or ansible_facts['distribution'] == "Rocky")
+  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and
+        nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and
+        (ansible_facts['distribution'] == "CentOS" or
+         ansible_facts['distribution'] == "Fedora" or
+         ansible_facts['distribution'] == "Rocky")
 
 - name: Install Nessus Agent deb from a local file for Ubuntu/Debian
   apt:
     deb: "{{ agent_file_dest }}"
-  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and (ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian")
-
-- name: Tenable linking command
-  debug:
-    msg: "/opt/nessus_agent/sbin/nessuscli agent link --host={{ TENABLE_HOST }} --port={{ TENABLE_PORT }} --key={{ TENABLE_LINKING_KEY }} --groups={{ TENABLE_AGENT_GROUP }} --name={{ tenable_agent_name }}"
+  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and
+        nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and
+        (ansible_facts['distribution'] == "Ubuntu" or
+         ansible_facts['distribution'] == "Debian")
 
 - name: Link nessus agent to tenable
-  shell: /opt/nessus_agent/sbin/nessuscli agent link --host={{ TENABLE_HOST }} --port={{ TENABLE_PORT }} --key={{ TENABLE_LINKING_KEY }} --groups={{ TENABLE_AGENT_GROUP }} --name={{ tenable_agent_name }}
+  shell: |
+      /opt/nessus_agent/sbin/nessuscli agent link \
+          --host="{{ TENABLE_HOST }}" \
+          --port="{{ TENABLE_PORT }}" \
+          --key="{{ TENABLE_LINKING_KEY }}" \
+          --groups="{{ TENABLE_AGENT_GROUP }}" \
+          --name="{{ tenable_agent_name }}"
   when:
     - nessus_link_status.stdout.find(TENABLE_HOST|string) == -1
     - nessus_link_status.stdout.find(TENABLE_PORT|string) == -1
