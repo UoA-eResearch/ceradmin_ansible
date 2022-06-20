@@ -33,7 +33,7 @@
 
 - name: Define Variables for Debian
   set_fact:
-    agent_installer_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-debian6_amd64.deb"
+    agent_installer_src: "{{ local_agent_installer_dir }}/NessusAgent-10.1.4-debian9_amd64.deb"
     agent_installer_dest: /tmp/NessusAgent-10.1.4-debian6_amd64.deb
   when:
     - ansible_facts['distribution'] == "Debian"
