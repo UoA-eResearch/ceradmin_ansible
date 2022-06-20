@@ -77,7 +77,8 @@
       name: ceradmin.tenable.agent
       tasks_from: install
     vars:
-      ansible_user: "{{ default_user }}"
+      # Why we need to use hostvars here: https://stackoverflow.com/questions/33896847/how-do-i-set-register-a-variable-to-persist-between-plays-in-ansible
+      tenable_agent_name: "pid={{ hostvars['localhost']['instance_details'].project_id }},uuid={{ instance_id  }}"
 
 
 # Tag VM to indicate that tenable has been set up
