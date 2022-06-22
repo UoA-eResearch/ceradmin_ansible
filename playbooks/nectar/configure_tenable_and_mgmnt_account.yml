@@ -24,7 +24,7 @@
       groupname: tmp_group
 
 
-# Set up and configure managemnt account
+# Set up and configure management account
 - hosts: tmp_group,!localhost
   gather_facts: no
   become: true
@@ -47,7 +47,7 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
 
-  - name: Setting tag management_account_configured
+  - name: Set tag management_account_configured
     ceradmin.openstack.set_instance_tag:
       instance_id: "{{ instance_id }}"
       tag: management_account_configured
@@ -82,14 +82,14 @@
 
 
 # Tag VM to indicate that tenable has been set up
-- name: Tagging OpenStack VM
+- name: Tag OpenStack VM
   hosts: localhost
   connection: local
   gather_facts: no
   vars:
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
-  - name: Setting tag tenable_agent_linked
+  - name: Set tag tenable_agent_linked
     ceradmin.openstack.set_instance_tag:
       instance_id: "{{ instance_id }}"
       tag: tenable_agent_linked
