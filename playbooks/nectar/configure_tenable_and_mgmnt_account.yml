@@ -15,7 +15,7 @@
 
   - name: Register first public ipv4
     set_fact:
-      public_ip: "{{ instance.details | ceradmin.openstack.first_ipv4('130\\.216\\.\\d{1,3}\\.\\d{1,3}$') }}"
+      public_ip: "{{ instance.details | ceradmin.openstack.first_instance_ipv4('130\\.216\\.\\d{1,3}\\.\\d{1,3}$') }}"
 
   - name: Fail if didn't get a public IP address
     fail:
