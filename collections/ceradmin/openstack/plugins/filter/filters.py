@@ -1,7 +1,7 @@
 import re
 
 
-def ipv4s(openstack_instance: dict, ip_regex: str = None):
+def get_server_ipv4s(openstack_instance: dict, ip_regex: str = None):
     ips = []
     networks = openstack_instance['addresses'].values()
     for network in networks:
@@ -13,9 +13,9 @@ def ipv4s(openstack_instance: dict, ip_regex: str = None):
     return ips
 
 
-def first_ipv4(openstack_instance: dict, ip_regex: str):
+def get_first_server_ipv4(openstack_instance: dict, ip_regex: str):
     ip = None
-    ips = ipv4s(openstack_instance, ip_regex)
+    ips = get_server_ipv4s(openstack_instance, ip_regex)
     if len(ips) > 0:
         ip = ips[0]
     return ip
@@ -25,6 +25,6 @@ class FilterModule(object):
 
     def filters(self):
         return {
-            'ipv4s': ipv4s,
-            'first_ipv4': first_ipv4
+            'get_server_ipv4s': get_server_ipv4s,
+            'get_first_server_ipv4': get_first_server_ipv4
         }
