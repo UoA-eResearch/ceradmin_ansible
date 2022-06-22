@@ -80,14 +80,20 @@ def run_module():
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
-    OS_COMPUTE_API_VERSION: float = 2.83
+
+    # Verify required environment variables are defined
+    for x in ['OS_AUTH_URL', 'OS_APPLICATION_CREDENTIAL_ID', 'OS_APPLICATION_CREDENTIAL_SECRET']:
+        if x not in os.environ:
+            module.fail_json(msg='%s is not set as environment variable' % x, **result)
+
+    os_compute_api_version: float = 2.83
     result['changed'] = False
     auth = identity.v3.application_credential.ApplicationCredential(
                auth_url=os.environ['OS_AUTH_URL'],
                application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
                application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
-    novac = nova_client.Client(OS_COMPUTE_API_VERSION, session=sess)
+    novac = nova_client.Client(os_compute_api_version, session=sess)
     instance_id = module.params['instance_id']
     tag = module.params['tag']
     tag_list = novac.servers.get(instance_id).tag_list()

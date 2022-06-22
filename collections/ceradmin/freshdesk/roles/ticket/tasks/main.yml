@@ -1,0 +1,3 @@
+---
+# tasks file for ticket
+- include_tasks: create_new_condition_of_use_ticket.yml

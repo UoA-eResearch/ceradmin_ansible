@@ -1,0 +1,32 @@
+---
+# tasks file for create
+- name: Create temporary file for ticket body
+  ansible.builtin.tempfile:
+    state: file
+    suffix: freshdesk_ticket
+  register: ticket_body_file
+
+- name: Create ticket body from template
+  ansible.builtin.template:
+    src: new_condition_of_use.tpl
+    dest: "{{ ticket_body_file.path }}"
+  vars:
+    first_name: "{{ ticket_template_var_first_name }}"
+    project_name: "{{ ticket_template_var_project_name }}"
+
+- name: Create ticket
+  ceradmin.freshdesk.create_ticket:
+    recipient: "{{ recipient }}"
+    subject: Change in Nectar condition of use
+    body: "{{ lookup('file', ticket_body_file.path) }}"
+    status: 6
+    ticket_type: Question
+    tags: security, auckland_new_condition_of_use
+    dry_run: "{{ dry_run }}"
+  register: details
+
+- name: Delete temporary file
+  ansible.builtin.file:
+    path: "{{ ticket_body_file.path }}"
+    state: absent
+

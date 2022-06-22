@@ -2,10 +2,10 @@
 
 from __future__ import (absolute_import, division, print_function)
 
-import os
-import novaclient.client as nova_client
-from keystoneauth1 import identity, session
 from ansible.module_utils.basic import AnsibleModule
+import os
+import nectarallocationclient.client as allocation_client
+from keystoneauth1 import identity, session
 
 __metaclass__ = type
 
@@ -17,14 +17,14 @@ version_added: "1.0.0"
 description: Return the first public IP and the project id
 
 options:
-    instance_id:
-        description: ID of the Nectar instance
+    allocation_id:
+        description: ID of the Nectar allocation
         required: true
         type: str
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
 extends_documentation_fragment:
-    - openstack.get_instance_details
+    - openstack.get_allocation_details
 
 author:
     - Martin Feller (@mondkaefer)
@@ -33,24 +33,20 @@ author:
 EXAMPLES = r'''
 # Pass in a message
 - name: Test with a message
-  openstack.get_instance_details:
-    instance_id: 5dd81950-5a21-4095-830a-150d68499095
+  openstack.get_allocation_details:
+    allocation_id: 9654
 
 '''
 
 RETURN = r'''
-# These are examples of possible return values, and in general should use other names for return values.
-details:
-    description: Openstack server dict, or None
-    type: dict
-    returned: always
+# Returns an entire allocation object
 '''
 
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
     module_args = dict(
-        instance_id=dict(type='str', required=True)
+        allocation_id=dict(type='str', required=True)
     )
 
     # seed the result dict in the object
@@ -60,7 +56,7 @@ def run_module():
     # for consumption, for example, in a subsequent task
     result = dict(
         changed=False,
-        details=None
+        allocation='',
     )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -84,21 +80,19 @@ def run_module():
     # Verify required environment variables are defined
     for x in ['OS_AUTH_URL', 'OS_APPLICATION_CREDENTIAL_ID', 'OS_APPLICATION_CREDENTIAL_SECRET']:
         if x not in os.environ:
-            module.fail_json(msg='%s is not set as environment variable' % x, **result)
+            module.fail_json(msg='%s is not set as environment variable.' % x, **result)
 
-    os_compute_api_version: float = 2.83
-    result['changed'] = False
-    result['details'] = None
     auth = identity.v3.application_credential.ApplicationCredential(
              auth_url=os.environ['OS_AUTH_URL'],
              application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
              application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
-    novac = nova_client.Client(os_compute_api_version, session=sess)
-    instance = novac.servers.get(module.params['instance_id'])
-    if instance is not None:
-        result['details'] = instance.to_dict()
+    allocationc = allocation_client.Client(1, session=sess)
+    result['details'] = allocationc.allocations.get(module.params['allocation_id']).to_dict()
+    result['changed'] = False
 
+    # in the event of a successful module execution, you will want to
+    # simple AnsibleModule.exit_json(), passing the key/value results
     module.exit_json(**result)
 
 
