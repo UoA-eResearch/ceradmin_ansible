@@ -2,8 +2,10 @@
 
 from __future__ import (absolute_import, division, print_function)
 
+import os
+import novaclient.client as nova_client
+from keystoneauth1 import identity, session
 from ansible.module_utils.basic import AnsibleModule
-from ceradmin_common.api.openstack_util import AppCredOpenstackUtil
 
 __metaclass__ = type
 
@@ -78,15 +80,19 @@ def run_module():
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
-    conf = AppCredOpenstackUtil.get_creds_from_environment()
-    ou = AppCredOpenstackUtil(app_cred_id=conf['application_credential_id'],
-                              app_cred_secret=conf['application_credential_secret'],
-                              auth_url=conf['auth_url'])
+    OS_COMPUTE_API_VERSION: float = 2.83
+    result['changed'] = False
+    auth = identity.v3.application_credential.ApplicationCredential(
+               auth_url=os.environ['AUTH_URL'],
+               application_credential_id=os.environ['APPLICATION_CREDENTIAL_ID'],
+               application_credential_secret=os.environ['APPLICATION_CREDENTIAL_SECRET'])
+    sess = session.Session(auth=auth)
+    novac = nova_client.Client(OS_COMPUTE_API_VERSION, session=sess)
     instance_id = module.params['instance_id']
     tag = module.params['tag']
-    tag_list = ou.get_server_tags(instance_id)
+    tag_list = novac.servers.get(instance_id).tag_list()
     if tag not in tag_list:
-        ou.set_server_tag(instance_id, tag)
+        novac.servers.get(instance_id).add_tag(tag)
         result['changed'] = True
 
     # in the event of a successful module execution, you will want to

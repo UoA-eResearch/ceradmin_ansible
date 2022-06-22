@@ -2,10 +2,10 @@
 
 from __future__ import (absolute_import, division, print_function)
 
-import re
+import os
+import novaclient.client as nova_client
+from keystoneauth1 import identity, session
 from ansible.module_utils.basic import AnsibleModule
-from ceradmin_common.api.openstack_util import AppCredOpenstackUtil
-from ceradmin_common.api.openstack_util import UoANectarIPRegex
 
 __metaclass__ = type
 
@@ -40,16 +40,10 @@ EXAMPLES = r'''
 
 RETURN = r'''
 # These are examples of possible return values, and in general should use other names for return values.
-public_ip:
-    description: First public IP found for the given instance
-    type: str
+details:
+    description: Openstack server dict, or None
+    type: dict
     returned: always
-    sample: '136.216.216.17'
-project_id:
-    description: Project ID of given instance
-    type: str
-    returned: always
-    sample: 'bb7ded84e4b64ed5ab2816443600e0e8'
 '''
 
 
@@ -66,8 +60,7 @@ def run_module():
     # for consumption, for example, in a subsequent task
     result = dict(
         changed=False,
-        public_ip='',
-        project_id=''
+        details=None
     )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -87,21 +80,19 @@ def run_module():
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
-    conf = AppCredOpenstackUtil.get_creds_from_environment()
-    ou = AppCredOpenstackUtil(app_cred_id=conf['application_credential_id'],
-                              app_cred_secret=conf['application_credential_secret'],
-                              auth_url=conf['auth_url'])
-    server_dict = ou.get_server(module.params['instance_id'])
-    result['project_id'] = server_dict['tenant_id']
-    ips = AppCredOpenstackUtil.get_ipv4s_of_server(server_dict)
-    for ip in ips:
-        if re.match(UoANectarIPRegex.PUBLIC_EXTERNAL, ip):
-            result['public_ip'] = ip
-            break
+    OS_COMPUTE_API_VERSION: float = 2.83
     result['changed'] = False
+    result['details'] = None
+    auth = identity.v3.application_credential.ApplicationCredential(
+             auth_url=os.environ['AUTH_URL'],
+             application_credential_id=os.environ['APPLICATION_CREDENTIAL_ID'],
+             application_credential_secret=os.environ['APPLICATION_CREDENTIAL_SECRET'])
+    sess = session.Session(auth=auth)
+    novac = nova_client.Client(OS_COMPUTE_API_VERSION, session=sess)
+    instance = novac.servers.get(module.params['instance_id'])
+    if instance is not None:
+        result['details'] = instance.to_dict()
 
-    # in the event of a successful module execution, you will want to
-    # simple AnsibleModule.exit_json(), passing the key/value results
     module.exit_json(**result)
 
 
