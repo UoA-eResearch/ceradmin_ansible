@@ -24,7 +24,7 @@
 
   - name: Create temporary host group with single IP
     add_host:
-      hostname: "{{ instance_details.public_ip }}"
+      hostname: "{{ public_ip }}"
       groupname: tmp_group
 
 
