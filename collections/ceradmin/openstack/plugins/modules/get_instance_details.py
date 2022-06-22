@@ -84,9 +84,9 @@ def run_module():
     result['changed'] = False
     result['details'] = None
     auth = identity.v3.application_credential.ApplicationCredential(
-             auth_url=os.environ['AUTH_URL'],
-             application_credential_id=os.environ['APPLICATION_CREDENTIAL_ID'],
-             application_credential_secret=os.environ['APPLICATION_CREDENTIAL_SECRET'])
+             auth_url=os.environ['OS_AUTH_URL'],
+             application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
+             application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
     novac = nova_client.Client(OS_COMPUTE_API_VERSION, session=sess)
     instance = novac.servers.get(module.params['instance_id'])
