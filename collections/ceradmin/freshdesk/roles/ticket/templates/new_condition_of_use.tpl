@@ -25,7 +25,7 @@
     the installation of a vulnerability detection tool.
     <br/><br/>
     Please reply to acknowledge this condition of use, and we will be happy to approve your
-    allocation request and will be in touch in this matter shortly.
+    allocation request.
     <br/><br/>
 
     Many thanks,<br/>

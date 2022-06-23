@@ -1,2 +1,4 @@
 ---
 # defaults file for ticket
+required_vars_new_condition_of_use_ticket:
+  - nectar_allocation_id

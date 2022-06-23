@@ -96,7 +96,6 @@ ticket_url:
 
 
 def run_module():
-    # define available arguments/parameters a user can pass to the module
     module_args = dict(
         recipient=dict(type='str', required=True),
         subject=dict(type='str', required=True),
@@ -109,11 +108,6 @@ def run_module():
         dry_run=dict(type='bool', required=False, default=True),
     )
 
-    # seed the result dict in the object
-    # we primarily care about changed and state
-    # changed is if this module effectively modified the target
-    # state will include any data that you want your module to pass back
-    # for consumption, for example, in a subsequent task
     result = dict(
         changed=False,
         ticket_id=None,
@@ -121,23 +115,13 @@ def run_module():
         stdout=None
     )
 
-    # the AnsibleModule object will be our abstraction working with Ansible
-    # this includes instantiation, a couple of common attr would be the
-    # args/params passed to the execution, as well as if the module
-    # supports check mode
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=True
     )
 
-    # if the user is working with this module in only check mode we do not
-    # want to make any changes to the environment, just return the current
-    # state with no modifications
     if module.check_mode:
         module.exit_json(**result)
-
-    # manipulate or modify the state as needed (this is going to be the
-    # part where your module will do what it needs to do)
 
     # Verify required environment variables are defined
     for x in ['FRESHDESK_DOMAIN', 'FRESHDESK_API_KEY', 'FRESHDESK_EMAIL_CONFIG_ID', 'FRESHDESK_GROUP_ID']:
@@ -149,8 +133,6 @@ def run_module():
     api_key = os.environ['FRESHDESK_API_KEY']
     email_config_id = int(os.environ['FRESHDESK_EMAIL_CONFIG_ID'])
     group_id = int(os.environ['FRESHDESK_GROUP_ID'])
-    api = API(domain, api_key)
-
     subject = module.params['subject']
     body = module.params['body']
     recipient = module.params['recipient']
@@ -177,17 +159,15 @@ Body:
 {body}
 --------'''
     else:
-        ticket = api.tickets.create_outbound_email(subject=subject, description=body,
-                                                   email=recipient, cc_emails=cc_list,
-                                                   email_config_id=email_config_id, group_id=group_id,
-                                                   priority=priority, status=status,
+        api = API(domain, api_key)
+        ticket = api.tickets.create_outbound_email(subject=subject, description=body, email=recipient,
+                                                   cc_emails=cc_list, email_config_id=email_config_id,
+                                                   group_id=group_id, priority=priority, status=status,
                                                    type=ticket_type, tags=tags)
         result['ticket_id'] = ticket.id
         result['ticket_url'] = 'https://{}/helpdesk/tickets/{}'.format(domain, ticket.id)
         result['changed'] = True
 
-    # in the event of a successful module execution, you will want to
-    # simple AnsibleModule.exit_json(), passing the key/value results
     module.exit_json(**result)
 
 

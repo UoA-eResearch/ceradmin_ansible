@@ -2,29 +2,30 @@
 
 from __future__ import (absolute_import, division, print_function)
 
-from ansible.module_utils.basic import AnsibleModule
 import os
-import nectarallocationclient.client as allocation_client
+import keystoneclient.client as keystone_client
+from keystoneclient import utils
 from keystoneauth1 import identity, session
+from ansible.module_utils.basic import AnsibleModule
 
 __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: get_instance_details
-short_description: Return the first public IP and the project id
+module: get_user_by_email
+short_description: Look up user details by email address
 version_added: "1.0.0"
-description: Return the first public IP and the project id
+description: Look up user details by email address
 
 options:
-    allocation_id:
-        description: ID of the Nectar allocation
+    email:
+        description: email of Nectar user
         required: true
         type: str
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
 extends_documentation_fragment:
-    - openstack.get_allocation_details
+    - openstack.get_user_by_email
 
 author:
     - Martin Feller (@mondkaefer)
@@ -32,21 +33,25 @@ author:
 
 EXAMPLES = r'''
 # Pass in a message
-- name: Test with a message
-  openstack.get_allocation_details:
-    allocation_id: 9654
+- name: Get user
+  openstack.get_user_by_email
+    email: m.feller@auckland.ac.nz
 
 '''
 
 RETURN = r'''
-# Returns an entire allocation object
+# These are examples of possible return values, and in general should use other names for return values.
+details:
+    description: Openstack user dict, or None
+    type: dict
+    returned: always
 '''
 
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
     module_args = dict(
-        allocation_id=dict(type='str', required=True)
+        email=dict(type='str', required=True)
     )
 
     # seed the result dict in the object
@@ -56,7 +61,7 @@ def run_module():
     # for consumption, for example, in a subsequent task
     result = dict(
         changed=False,
-        allocation=None
+        user=None
     )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -80,19 +85,16 @@ def run_module():
     # Verify required environment variables are defined
     for x in ['OS_AUTH_URL', 'OS_APPLICATION_CREDENTIAL_ID', 'OS_APPLICATION_CREDENTIAL_SECRET']:
         if x not in os.environ:
-            module.fail_json(msg='%s is not set as environment variable.' % x, **result)
+            module.fail_json(msg='%s is not set as environment variable' % x, **result)
 
+    keystone_api_version = 3
     auth = identity.v3.application_credential.ApplicationCredential(
              auth_url=os.environ['OS_AUTH_URL'],
              application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
              application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
-    sess = session.Session(auth=auth)
-    allocationc = allocation_client.Client(1, session=sess)
-    result['allocation'] = allocationc.allocations.get(module.params['allocation_id']).to_dict()
-    result['changed'] = False
+    keystonec = keystone_client.Client(keystone_api_version, session=session.Session(auth=auth))
+    result['user'] = utils.find_resource(keystonec.users, module.params['email']).to_dict()
 
-    # in the event of a successful module execution, you will want to
-    # simple AnsibleModule.exit_json(), passing the key/value results
     module.exit_json(**result)
 
 
