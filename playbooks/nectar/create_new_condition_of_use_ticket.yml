@@ -1,0 +1,17 @@
+---
+- name: Create Freshdesk ticket
+  hosts: localhost
+  gather_facts: no
+  tasks:
+
+  - name: Create ticket
+    include_role:
+      name: ceradmin.freshdesk.ticket
+      tasks_from: create_new_condition_of_use_ticket
+    vars:
+      nectar_allocation_id: {{ nectar_allocation_id }}
+      dry_run: {{ dry_run }}
+  - name: Print details
+    debug:
+      msg:
+       -  "{{ details }}"
