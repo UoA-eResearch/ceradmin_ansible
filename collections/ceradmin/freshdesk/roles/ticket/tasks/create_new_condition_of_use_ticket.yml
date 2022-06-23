@@ -13,12 +13,12 @@
       - auckland
       - "allocation-{{nectar_allocation_id}}"
       - auckland_new_condition_of_use
-  register: tickets
+  register: get_tickets_result
 
 - name: Fail if we already have a ticket for this allocation
   fail:
     msg: "A ticket has already been created for allocation {{ nectar_allocation_id }}"
-  when: tickets is defined and tickets | length > 0
+  when: get_tickets_result.tickets is defined and get_tickets_result.tickets | length > 0
 
 - name: Get allocation details from Nectar allocation API
   ceradmin.nectar_allocation.get_allocation_details:
