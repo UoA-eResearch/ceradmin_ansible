@@ -6,7 +6,7 @@
   when: item not in vars
   with_items: "{{ required_vars_new_condition_of_use_ticket }}"
 
-- name: Get existing tickets for this allocation
+- name: Get existing tickets for this allocation from Freshdesk
   ceradmin.freshdesk.get_tickets:
     tags:
       - security
@@ -20,12 +20,12 @@
     msg: "A ticket has already been created for allocation {{ nectar_allocation_id }}"
   when: tickets is defined and tickets | length > 0
 
-- name: Get allocation details
+- name: Get allocation details from Nectar allocation API
   ceradmin.nectar_allocation.get_allocation_details:
     allocation_id: "{{ nectar_allocation_id }}"
   register: alloc_details
 
-- name: Get user details
+- name: Get user details from Keystone
   ceradmin.openstack.get_user_by_email:
     email: "{{ alloc_details.allocation.contact_email }}"
   register: user_details
@@ -44,7 +44,7 @@
     first_name: "{{ user_details.user.full_name | split(' ') | first }}"
     project_name: "{{ alloc_details.allocation.project_name }}"
 
-- name: Create ticket
+- name: Create ticket in Freshdesk
   ceradmin.freshdesk.create_ticket:
     recipient: "{{ user_details.user.email }}"
     subject: Change in Nectar condition of use
