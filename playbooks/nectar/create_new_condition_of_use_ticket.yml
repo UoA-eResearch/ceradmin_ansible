@@ -2,6 +2,8 @@
 - name: Create Freshdesk ticket
   hosts: localhost
   gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
 
   - name: Create ticket
@@ -11,6 +13,7 @@
     vars:
       nectar_allocation_id: "{{ nectar_allocation_id }}"
       dry_run: "{{ dry_run }}"
+
   - name: Print details
     debug:
       msg:
