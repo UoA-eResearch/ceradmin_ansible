@@ -169,17 +169,27 @@ def run_module():
     search_opts = {'status': 'ACTIVE', 'availability_zone': 'auckland', 'all_tenants': True}
     for s in nova_c.servers.list(search_opts=search_opts):
         server_dict = s.to_dict()
+        existing_md = server_dict['metadata']
+        existing_os_info = {
+            'os_type': existing_md['os_type'] if 'os_type' in existing_md else None,
+            'os_family': existing_md['os_family'] if 'os_family' in existing_md else None,
+            'os_version': existing_md['os_version'] if 'os_version' in existing_md else None
+        }
 
         os_info = get_os_information_from_console_log(s)
         if os_info is None:
             os_info = get_instance_os_from_image(glance_c, server_dict["image"]["id"])
 
-        if os_info is None:
+        if os_info is None and existing_os_info['os_type'] is None:
             result['servers_without_os_information'].append(server_dict["id"])
         else:
-            sm = ServerManager(nova_c)
-            sm.set_meta(s, os_info)
-            result['changed'] = True
+            if existing_os_info['os_type'] is None or existing_os_info['os_type'] != os_info['os_type'] or \
+                    existing_os_info['os_family'] is None or existing_os_info['os_family'] != os_info['os_family'] or \
+                    existing_os_info['os_version'] is None or existing_os_info['os_version'] != os_info['os_version']:
+                print(f'Setting metadata {os_info} for {server_dict["id"]}')
+                sm = ServerManager(nova_c)
+                sm.set_meta(s, os_info)
+                result['changed'] = True
 
     module.exit_json(**result)
 
