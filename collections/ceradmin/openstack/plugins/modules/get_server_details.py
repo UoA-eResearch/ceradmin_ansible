@@ -12,20 +12,20 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: get_instance_details
+module: get_server_details
 short_description: Return the first public IP and the project id
 version_added: "1.0.0"
 description: Return the first public IP and the project id
 
 options:
     instance_id:
-        description: ID of the Nectar instance
+        description: ID of the Nectar server
         required: true
         type: str
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
 extends_documentation_fragment:
-    - openstack.get_instance_details
+    - ceradmin.openstack.get_server_details
 
 author:
     - Martin Feller (@mondkaefer)
@@ -34,7 +34,7 @@ author:
 EXAMPLES = r'''
 # Pass in a message
 - name: Test with a message
-  openstack.get_instance_details:
+  ceradmin.openstack.get_server_details:
     instance_id: 5dd81950-5a21-4095-830a-150d68499095
 
 '''
@@ -42,13 +42,13 @@ EXAMPLES = r'''
 RETURN = r'''
 # These are examples of possible return values, and in general should use other names for return values.
 details:
-    description: Openstack server dict including floating ips of instance, or None
+    description: Openstack server dict including floating ips of server, or None
     type: dict
     returned: always
 '''
 
 
-# Return all IPv4 addresses of this instance
+# Return all IPv4 addresses of this server
 def get_server_ipv4s(server_dict):
     ips = []
     networks = server_dict['addresses'].values()
@@ -57,7 +57,7 @@ def get_server_ipv4s(server_dict):
     return ips
 
 
-# Return all active floating ip objects attached to this instance
+# Return all active floating ip objects attached to this server
 def get_floating_ips(sess, server_dict):
     ips = []
     neutronc = neutron_client.Client(session=sess)

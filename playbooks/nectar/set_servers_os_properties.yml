@@ -8,7 +8,7 @@
   tasks:
 
   - name: Collect and set OS properties for active Auckland Nectar servers
-    ceradmin.openstack.set_instances_os_properties:
+    ceradmin.openstack.set_servers_os_properties:
     register: details
 
   - name: Print servers where we couldn't collect any information

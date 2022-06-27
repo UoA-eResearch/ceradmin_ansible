@@ -11,14 +11,14 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: set_instance_tag
-short_description: Set a tag on an instance
+module: set_server_tag
+short_description: Set a tag on a server
 version_added: "1.0.0"
-description: Set a tag on an instance
+description: Set a tag on a server
 
 options:
     instance_id:
-        description: ID of the Nectar instance
+        description: ID of the Nectar server
         required: true
         type: str
     tag:
@@ -28,7 +28,7 @@ options:
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
 extends_documentation_fragment:
-    - openstack.set_instance_tag
+    - ceradmin.openstack.set_server_tag
 
 author:
     - Martin Feller (@mondkaefer)
@@ -37,7 +37,7 @@ author:
 EXAMPLES = r'''
 # Pass in a message
 - name: Test with a message
-  openstack.set_instance_tag:
+  ceradmin.openstack.set_server_tag:
     instance_id: 5dd81950-5a21-4095-830a-150d68499095
     tag: test
 '''

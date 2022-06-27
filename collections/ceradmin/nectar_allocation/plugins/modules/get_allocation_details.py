@@ -11,7 +11,7 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: get_instance_details
+module: get_allocation_details
 short_description: Return the first public IP and the project id
 version_added: "1.0.0"
 description: Return the first public IP and the project id
@@ -24,7 +24,7 @@ options:
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
 extends_documentation_fragment:
-    - openstack.get_allocation_details
+    - ceradmin.openstack.get_allocation_details
 
 author:
     - Martin Feller (@mondkaefer)

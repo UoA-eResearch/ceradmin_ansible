@@ -16,7 +16,7 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: set_instances_os_properties
+module: set_servers_os_properties
 short_description: Set properties os_type, os_family, os_version for all running Auckland servers
 version_added: "1.0.0"
 description: Set properties os_type, os_family, os_version for all running Auckland servers
@@ -27,7 +27,7 @@ options:
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
 extends_documentation_fragment:
-    - openstack.set_instances_os_properties
+    - ceradmin.openstack.set_servers_os_properties
 
 author:
     - Martin Feller (@mondkaefer)
@@ -36,7 +36,7 @@ author:
 EXAMPLES = r'''
 # Pass in a message
 - name: Set OS properties for all active servers in Auckland 
-  openstack.set_instances_os_properties
+  ceradmin.openstack.set_servers_os_properties
 
 '''
 
@@ -109,7 +109,7 @@ def get_os_information_from_console_log(server):
         return {'os_type': os_t, 'os_family': os_f, 'os_version': os_v}
 
 
-def get_instance_os_from_image(glance_c, image_id):
+def get_server_os_from_image(glance_c, image_id):
     if image_id in cer_windows_images_ids:
         return {'os_type': 'windows', 'os_family': 'server', 'os_version': '2012 r2'}
 
@@ -124,7 +124,7 @@ def get_instance_os_from_image(glance_c, image_id):
             if img_det['base_image_ref'] in cer_windows_images_ids:
                 return {'os_type': 'windows', 'os_family': 'server', 'os_version': '2012 r2'}
             else:
-                return get_instance_os_from_image(img_det['base_image_ref'])
+                return get_server_os_from_image(img_det['base_image_ref'])
         elif 'os_distro' in img_det and img_det['os_distro'] == 'fedora-coreos':
             return {'os_type': 'linux', 'os_family': 'fedora coreos', 'os_version': img_det['name']}
     except HTTPNotFound:
@@ -178,7 +178,7 @@ def run_module():
 
         os_info = get_os_information_from_console_log(s)
         if os_info is None:
-            os_info = get_instance_os_from_image(glance_c, server_dict["image"]["id"])
+            os_info = get_server_os_from_image(glance_c, server_dict["image"]["id"])
 
         if os_info is None:
             if existing_os_info['os_type'] is None:
