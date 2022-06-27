@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function)
 
 import os
 import novaclient.client as nova_client
+import neutronclient.v2_0.client as neutron_client
 from keystoneauth1 import identity, session
 from ansible.module_utils.basic import AnsibleModule
 
@@ -41,45 +42,50 @@ EXAMPLES = r'''
 RETURN = r'''
 # These are examples of possible return values, and in general should use other names for return values.
 details:
-    description: Openstack server dict, or None
+    description: Openstack server dict including floating ips of instance, or None
     type: dict
     returned: always
 '''
 
 
+# Return all IPv4 addresses of this instance
+def get_server_ipv4s(server_dict):
+    ips = []
+    networks = server_dict['addresses'].values()
+    for network in networks:
+        ips.extend((address['addr'] for address in network if address['version'] == 4))
+    return ips
+
+
+# Return all active floating ip objects attached to this instance
+def get_floating_ips(sess, server_dict):
+    ips = []
+    neutronc = neutron_client.Client(session=sess)
+    fips = neutronc.list_floatingips(project_id=server_dict['tenant_id'])['floatingips']
+    server_ipv4s = get_server_ipv4s(server_dict)
+    for fip in fips:
+        if fip['status'] == 'ACTIVE' and fip['fixed_ip_address'] in server_ipv4s:
+            ips.append(fip)
+    return ips
+
+
 def run_module():
-    # define available arguments/parameters a user can pass to the module
     module_args = dict(
         instance_id=dict(type='str', required=True)
     )
 
-    # seed the result dict in the object
-    # we primarily care about changed and state
-    # changed is if this module effectively modified the target
-    # state will include any data that you want your module to pass back
-    # for consumption, for example, in a subsequent task
     result = dict(
         changed=False,
         details=None
     )
 
-    # the AnsibleModule object will be our abstraction working with Ansible
-    # this includes instantiation, a couple of common attr would be the
-    # args/params passed to the execution, as well as if the module
-    # supports check mode
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=True
     )
 
-    # if the user is working with this module in only check mode we do not
-    # want to make any changes to the environment, just return the current
-    # state with no modifications
     if module.check_mode:
         module.exit_json(**result)
-
-    # manipulate or modify the state as needed (this is going to be the
-    # part where your module will do what it needs to do)
 
     # Verify required environment variables are defined
     for x in ['OS_AUTH_URL', 'OS_APPLICATION_CREDENTIAL_ID', 'OS_APPLICATION_CREDENTIAL_SECRET']:
@@ -95,9 +101,11 @@ def run_module():
              application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
     novac = nova_client.Client(os_compute_api_version, session=sess)
-    instance = novac.servers.get(module.params['instance_id'])
-    if instance is not None:
-        result['details'] = instance.to_dict()
+    server = novac.servers.get(module.params['instance_id'])
+    if server is not None:
+        server_dict = server.to_dict()
+        server_dict['floating_ips'] = get_floating_ips(sess, server_dict)
+        result['details'] = server_dict
 
     module.exit_json(**result)
 
