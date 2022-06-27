@@ -12,7 +12,7 @@
       - security
       - auckland
       - "allocation-{{nectar_allocation_id}}"
-      - auckland_new_condition_of_use
+      - new_condition_of_use
   register: get_tickets_result
 
 - name: Fail if we already have a ticket for this allocation
@@ -54,7 +54,7 @@
     tags:
      - security
      - auckland
-     - auckland_new_condition_of_use
+     - new_condition_of_use
      - "allocation-{{nectar_allocation_id}}"
     dry_run: "{{ dry_run }}"
   register: details
