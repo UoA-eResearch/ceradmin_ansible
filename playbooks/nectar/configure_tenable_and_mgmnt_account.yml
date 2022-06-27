@@ -83,7 +83,7 @@
       tasks_from: install
     vars:
       # Why we need to use hostvars here: https://stackoverflow.com/questions/33896847/how-do-i-set-register-a-variable-to-persist-between-plays-in-ansible
-      tenable_agent_name: "pid={{ hostvars['localhost']['instance'].project_id }},uuid={{ instance_id }}"
+      tenable_agent_name: "pid={{ hostvars['localhost']['instance'].tenant_id }},uuid={{ instance_id }}"
 
 
 # Tag VM to indicate that tenable has been set up
