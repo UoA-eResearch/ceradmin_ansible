@@ -1,5 +1,5 @@
 ---
-- name: Collect and set OS properties on active Auckland Nectar servers
+- name: Collect and set OS properties for active Auckland Nectar servers
   hosts: localhost
   connection: local
   gather_facts: no
@@ -7,7 +7,7 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
 
-  - name: Set OS properties on active Auckland servers
+  - name: Collect and set OS properties for active Auckland Nectar servers
     ceradmin.openstack.set_instances_os_properties:
     register: details
 
