@@ -96,9 +96,9 @@ def run_module():
     novac = nova_client.Client(os_compute_api_version, session=sess)
     instance_id = module.params['instance_id']
     tag = module.params['tag']
-    tag_list = novac.servers.get(instance_id).tag_list()
-    if tag not in tag_list:
-        novac.servers.get(instance_id).add_tag(tag)
+    server = novac.servers.get(instance_id)
+    if tag not in server.tag_list():
+        server.add_tag(tag)
         result['changed'] = True
 
     # in the event of a successful module execution, you will want to
