@@ -114,22 +114,19 @@ def get_instance_os_from_image(glance_c, image_id):
         return {'os_type': 'windows', 'os_family': 'server', 'os_version': '2012 r2'}
 
     try:
-        img_details = glance_c.images.get(image_id)
-        if 'nectar_name' in img_details:
-            if 'os_distro' in img_details:
-                return {'os_type': 'linux', 'os_family': img_details['os_distro'],
-                        'os_version': img_details['os_version']}
-            elif '.facts/os_distro' in img_details: # Trove images
-                return {'os_type': 'linux', 'os_family': img_details['.facts/os_distro'],
-                        'os_version': img_details['.facts/os_version']}
-        elif 'base_image_ref' in img_details:
-            if img_details['base_image_ref'] in cer_windows_images_ids:
+        img_det = glance_c.images.get(image_id)
+        if 'nectar_name' in img_det:
+            if 'os_distro' in img_det:
+                return {'os_type': 'linux', 'os_family': img_det['os_distro'], 'os_version': img_det['os_version']}
+            elif '.facts/os_distro' in img_det: # Trove images
+                return {'os_type': 'linux', 'os_family': img_det['.facts/os_distro'], 'os_version': img_det['.facts/os_version']}
+        elif 'base_image_ref' in img_det:
+            if img_det['base_image_ref'] in cer_windows_images_ids:
                 return {'os_type': 'windows', 'os_family': 'server', 'os_version': '2012 r2'}
             else:
-                return get_instance_os_from_image(img_details['base_image_ref'])
-        elif 'os_distro' in img_details and img_details['os_distro'] == 'fedora-coreos':
-            return {'os_type': 'linux', 'os_family': 'fedora coreos',
-                    'os_version': img_details['name']}
+                return get_instance_os_from_image(img_det['base_image_ref'])
+        elif 'os_distro' in img_det and img_det['os_distro'] == 'fedora-coreos':
+            return {'os_type': 'linux', 'os_family': 'fedora coreos', 'os_version': img_det['name']}
     except HTTPNotFound:
         print("glance exception: image not found")
 
