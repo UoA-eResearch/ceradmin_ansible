@@ -19,7 +19,7 @@
   fail:
     msg:
       - "A ticket has already been created for allocation {{ nectar_allocation_id }}"
-      - "To see it search Freshdesk tickets for tags 'security', 'allocation-{{ nectar_allocation_id }}"'
+      - "To see it search Freshdesk tickets for tags 'security', 'allocation-{{ nectar_allocation_id }}'"
 
   when: get_tickets_result.tickets is defined and get_tickets_result.tickets | length > 0
 
