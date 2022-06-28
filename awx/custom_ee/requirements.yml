@@ -1,0 +1,8 @@
+---
+collections:
+  - name: ansible.posix
+  - name: git+https://github.com/UoA-eResearch/ceradmin_ansible.git#/collections/ceradmin/openstack,main
+  - name: git+https://github.com/UoA-eResearch/ceradmin_ansible.git#/collections/ceradmin/tenable,main
+  - name: git+https://github.com/UoA-eResearch/ceradmin_ansible.git#/collections/ceradmin/nectar_external,main
+  - name: git+https://github.com/UoA-eResearch/ceradmin_ansible.git#/collections/ceradmin/nectar_allocation,main
+  - name: git+https://github.com/UoA-eResearch/ceradmin_ansible.git#/collections/ceradmin/freshdesk,main
