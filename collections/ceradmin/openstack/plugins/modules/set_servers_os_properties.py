@@ -163,7 +163,7 @@ def run_module():
         application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
         application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
-    nova_c = nova_client.Client(2.83, session=sess)
+    nova_c = nova_client.Client(os_compute_api_version, session=sess)
     glance_c = glance_client.Client(2, session=sess)
 
     search_opts = {'status': 'ACTIVE', 'availability_zone': 'auckland', 'all_tenants': True}
