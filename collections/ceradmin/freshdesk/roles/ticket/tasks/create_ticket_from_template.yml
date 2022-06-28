@@ -1,0 +1,35 @@
+# tasks file for create
+- name: Verify required variables are defined
+  fail:
+    msg: "Variable '{{ item }}' is not defined"
+  when: item not in vars
+  with_items: "{{ required_vars_ticket }}"
+
+- name: Create temporary file for ticket body
+  ansible.builtin.tempfile:
+    state: file
+    suffix: freshdesk_ticket
+  register: ticket_body_file
+
+- name: Create ticket body from template
+  ansible.builtin.template:
+    src: "{{ template_file_name }}"
+    dest: "{{ ticket_body_file.path }}"
+  with_items:
+    - "{{ template_vars }}"
+
+- name: Create ticket in Freshdesk
+  ceradmin.freshdesk.create_ticket:
+    recipient: "{{ ticket_recipient }}"
+    subject: "{{ ticket_subject }}"
+    body: "{{ lookup('file', ticket_body_file.path) }}"
+    status: "{{ ticket_status }}"
+    ticket_type: Question
+    tags: "{{ ticket_tags }}"
+    dry_run: "{{ dryrun }}"
+  register: details
+
+- name: Delete temporary file
+  ansible.builtin.file:
+    path: "{{ ticket_body_file.path }}"
+    state: absent

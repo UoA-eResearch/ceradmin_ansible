@@ -1,0 +1,62 @@
+---
+- name: Request researcher to configure SSH access for Nectar@Auckland operators
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+
+  - name: Get details from Nectar allocation API
+    ceradmin.nectar_allocation.get_allocation_details:
+      allocation_id: "{{ allocation_id }}"
+    register: alloc_details
+
+  - name: Get active Linux servers of project that don't have tenable linked
+    ceradmin.openstack.get_servers:
+      search_opts:
+        availability_zone: auckland
+        all_tenants: True
+        project_id: "{{ alloc_details.allocation.project_id }}"
+        status: ACTIVE
+        not-tags: tenable_agent_linked
+      metadata_filter:
+        os_type: linux
+      ip_regex: 130\.216\..*
+    register: get_servers_result
+
+  - name: Stop if we don't have any Linux servers
+    fail:
+      msg: >
+        No Linux servers on this project, or all Linux servers of this projects
+        are linked with tenable already - nothing to do.
+    when: get_servers_result.servers | length == 0
+
+  - name: Get user details from Keystone
+    ceradmin.openstack.get_user_by_email:
+      email: "{{ alloc_details.allocation.contact_email }}"
+    register: user_details
+
+  - name: Create Freshdesk ticket
+    include_role:
+      name: ceradmin.freshdesk.ticket
+      tasks_from: create_ticket_from_template
+    vars:
+      dryrun: "{{ dry_run }}"
+      template_file_name: configure_operator_ssh_access.tpl
+      template_vars:
+        first_name: "{{ user_details.user.full_name | split(' ') | first }}"
+        project_name: "{{ alloc_details.allocation.project_name }}"
+        servers: "{{ get_servers_result.servers }}"
+      ticket_recipient: "{{ alloc_details.allocation.contact_email }}"
+      ticket_subject: Configure SSH access for Nectar@Auckland operators
+      ticket_status: 6
+      ticket_tags:
+        - auckland
+        - "allocation-{{ allocation_id }}"
+        - configure_operator_access
+
+  - name: Print ticket details
+    debug:
+      msg:
+       -  "{{ details }}"

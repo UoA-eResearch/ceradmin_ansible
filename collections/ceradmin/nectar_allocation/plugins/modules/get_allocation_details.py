@@ -5,6 +5,7 @@ from __future__ import (absolute_import, division, print_function)
 from ansible.module_utils.basic import AnsibleModule
 import os
 import nectarallocationclient.client as allocation_client
+from nectarallocationclient.exceptions import NotFound
 from keystoneauth1 import identity, session
 
 __metaclass__ = type
@@ -88,8 +89,10 @@ def run_module():
              application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
     allocationc = allocation_client.Client(1, session=sess)
-    result['allocation'] = allocationc.allocations.get(module.params['allocation_id']).to_dict()
-    result['changed'] = False
+    try:
+        result['allocation'] = allocationc.allocations.get(module.params['allocation_id']).to_dict()
+    except NotFound:
+        module.fail_json(msg=f'No such allocation: {module.params["allocation_id"]}', **result)
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results

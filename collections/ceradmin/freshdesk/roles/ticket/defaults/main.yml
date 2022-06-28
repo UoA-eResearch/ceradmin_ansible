@@ -1,4 +1,9 @@
 ---
 # defaults file for ticket
-required_vars_new_condition_of_use_ticket:
-  - nectar_allocation_id
+required_vars_ticket:
+  - template_file_name
+  - template_vars
+  - ticket_recipient
+  - ticket_subject
+  - ticket_status
+  - dryrun

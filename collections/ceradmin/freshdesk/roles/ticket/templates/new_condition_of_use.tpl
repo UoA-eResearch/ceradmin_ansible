@@ -4,10 +4,10 @@
   </head>
   <body>
 
-    Dear {{first_name}},
+    Dear {{ item.first_name }},
     <br/><br/>
     Thanks for putting in a new Nectar allocation request, or an amendment request for an existing Nectar allocation
-    (<i>{{project_name}}</i>).
+    (<i>{{ item.project_name }}</i>).
     <br/><br/>
     Cyber security is a serious concern for the University.
     <br/>

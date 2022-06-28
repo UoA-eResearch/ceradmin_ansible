@@ -1,5 +1,5 @@
 ---
-- name: Ask researcher to acknowledge new condition of use for Nectar@Auckland
+- name: Request researcher to acknowledge new condition of use for Nectar@Auckland
   hosts: localhost
   connection: local
   gather_facts: no
@@ -7,15 +7,52 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
 
-  - name: Create Freshdesk ticket for researcher to accept or decline the new condition of use
+  - name: Get existing tickets for this allocation from Freshdesk
+    ceradmin.freshdesk.get_tickets:
+      tags:
+        - security
+        - auckland
+        - "allocation-{{ allocation_id }}"
+        - new_condition_of_use
+    register: get_tickets_result
+
+  - name: Fail if we already have a ticket for this allocation
+    fail:
+      msg: |
+        "A ticket has already been created for allocation {{ allocation_id }}."
+        "To see it search Freshdesk tickets for tags 'security', 'allocation-{{ allocation_id }}'"
+    when: get_tickets_result.tickets is defined and get_tickets_result.tickets | length > 0
+
+  - name: Get allocation details from Nectar allocation API
+    ceradmin.nectar_allocation.get_allocation_details:
+      allocation_id: "{{ allocation_id }}"
+    register: alloc_details
+
+  - name: Get user details from Keystone
+    ceradmin.openstack.get_user_by_email:
+      email: "{{ alloc_details.allocation.contact_email }}"
+    register: user_details
+
+  - name: Create Freshdesk ticket
     include_role:
       name: ceradmin.freshdesk.ticket
-      tasks_from: create_new_condition_of_use_ticket
+      tasks_from: create_ticket_from_template
     vars:
-      nectar_allocation_id: "{{ nectar_allocation_id }}"
-      dry_run: "{{ dry_run }}"
+      dryrun: "{{ dry_run }}"
+      template_file_name: new_condition_of_use.tpl
+      template_vars:
+        first_name: "{{ user_details.user.full_name | split(' ') | first }}"
+        project_name: "{{ alloc_details.allocation.project_name }}"
+      ticket_recipient: "{{ alloc_details.allocation.contact_email }}"
+      ticket_subject: Change in Nectar condition of use
+      ticket_status: 6
+      ticket_tags:
+        - security
+        - auckland
+        - new_condition_of_use
+        - "allocation-{{ allocation_id }}"
 
-  - name: Print details
+  - name: Print ticket details
     debug:
       msg:
        -  "{{ details }}"
