@@ -1,0 +1,4 @@
+env:
+  AUTH_URL: '{{ auth_url }}'
+  APPLICATION_CREDENTIAL_ID: '{{ application_credential_id }}'
+  APPLICATION_CREDENTIAL_SECRET: '{{ application_credential_secret }}'

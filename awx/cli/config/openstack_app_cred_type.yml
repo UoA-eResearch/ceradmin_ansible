@@ -1,0 +1,17 @@
+fields:
+  - id: application_credential_id
+    type: string
+    label: <application_credential_id>
+    secret: false
+  - id: application_credential_secret
+    type: string
+    label: <application_credential_secret>
+    secret: true
+  - id: auth_url
+    type: string
+    label: <auth_url>
+    secret: false
+required:
+  - application_credential_id
+  - application_credential_secret
+  - auth_url

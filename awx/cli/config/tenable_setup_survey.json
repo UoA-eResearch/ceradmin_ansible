@@ -1,0 +1,24 @@
+{
+  "description": "",
+  "spec": [
+    {
+      "required": true,
+      "min": 1,
+      "max": 40,
+      "question_description": "username to be used when connecting to this instance",
+      "variable": "ansible_user",
+      "question_name": "Username",
+      "type": "text"
+    },
+    {
+      "required": true,
+      "min": 37,
+      "max": 37,
+      "question_description": "Nectar VM instance uuid",
+      "variable": "instance_uuid",
+      "question_name": "VM instance uuid",
+      "type": "text"
+    },
+  ],
+  "name": ""
+}
