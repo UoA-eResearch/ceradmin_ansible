@@ -6,7 +6,8 @@ import re
 import os
 import novaclient.client as nova_client
 import neutronclient.v2_0.client as neutron_client
-from keystoneauth1 import identity, session
+from keystoneauth1.identity import v3
+from keystoneauth1 import session
 from ansible.module_utils.basic import AnsibleModule
 
 __metaclass__ = type
@@ -14,9 +15,9 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: get_servers
-short_description: Return list of Linux servers that have not been linked to tenable
+short_description: Return list of servers
 version_added: "1.0.0"
-description: Return list of Linux servers that have not been linked to tenable
+description: Return list of Linux servers
 
 options:
     search_opts:
@@ -45,7 +46,7 @@ EXAMPLES = r'''
 # Pass in a message
 - name: Test with a message
   ceradmin.openstack.get_servers:
-    search_opts: {'all_tenants': True, 'availability_zone': 'auckland'
+    search_opts: { 'all_tenants': True, 'availability_zone': 'auckland' }
     metadata_filter: { 'os_type': 'linux' }
     ip_regex: '130\\.216\\..*'
 '''
@@ -71,8 +72,8 @@ def get_server_ipv4s(server_dict):
 # Return all active floating ip objects attached to this server
 def get_floating_ips(sess, server_dict):
     ips = []
-    neutronc = neutron_client.Client(session=sess)
-    fips = neutronc.list_floatingips(project_id=server_dict['tenant_id'])['floatingips']
+    neutron_c = neutron_client.Client(session=sess)
+    fips = neutron_c.list_floatingips(project_id=server_dict['tenant_id'])['floatingips']
     server_ipv4s = get_server_ipv4s(server_dict)
     for fip in fips:
         if fip['status'] == 'ACTIVE' and fip['fixed_ip_address'] in server_ipv4s:
@@ -145,13 +146,13 @@ def run_module():
 
     os_compute_api_version: float = 2.83
     result['servers'] = []
-    auth = identity.v3.application_credential.ApplicationCredential(
+    auth = v3.application_credential.ApplicationCredential(
              auth_url=os.environ['OS_AUTH_URL'],
              application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
              application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
-    novac = nova_client.Client(os_compute_api_version, session=sess)
-    servers = novac.servers.list(search_opts=module.params['search_opts'])
+    nova_c = nova_client.Client(os_compute_api_version, session=sess)
+    servers = nova_c.servers.list(search_opts=module.params['search_opts'])
     server_dicts = []
     for server in servers:
         tmp = server.to_dict()

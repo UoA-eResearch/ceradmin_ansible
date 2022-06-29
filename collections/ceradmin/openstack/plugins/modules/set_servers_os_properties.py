@@ -6,7 +6,7 @@ import re
 import os
 import novaclient.client as nova_client
 from novaclient.v2.servers import ServerManager
-import glanceclient.client as glance_client
+import glanceclient.v2.client as glance_client
 from glanceclient.exc import HTTPNotFound
 from keystoneauth1 import identity
 from keystoneauth1 import session
@@ -164,7 +164,7 @@ def run_module():
         application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
     nova_c = nova_client.Client(os_compute_api_version, session=sess)
-    glance_c = glance_client.Client(2, session=sess)
+    glance_c = glance_client.Client(session=sess)
 
     search_opts = {'status': 'ACTIVE', 'availability_zone': 'auckland', 'all_tenants': True}
     for s in nova_c.servers.list(search_opts=search_opts):

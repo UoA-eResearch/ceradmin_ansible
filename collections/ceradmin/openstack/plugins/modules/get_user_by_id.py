@@ -3,9 +3,10 @@
 from __future__ import (absolute_import, division, print_function)
 
 import os
-import keystoneclient.client as keystone_client
-from keystoneclient import utils
-from keystoneauth1 import identity, session
+import keystoneclient.v3.client as keystone_client
+from keystoneclient.exceptions import NotFound
+from keystoneauth1.identity import v3
+from keystoneauth1 import session
 from ansible.module_utils.basic import AnsibleModule
 
 __metaclass__ = type
@@ -87,16 +88,17 @@ def run_module():
         if x not in os.environ:
             module.fail_json(msg='%s is not set as environment variable' % x, **result)
 
-    keystone_api_version = 3
-    auth = identity.v3.application_credential.ApplicationCredential(
+    auth = v3.application_credential.ApplicationCredential(
              auth_url=os.environ['OS_AUTH_URL'],
              application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
              application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
-    keystonec = keystone_client.Client(keystone_api_version, session=session.Session(auth=auth))
-    result['user'] = keystonec.users.get(module.params['id']).to_dict()
+    keystone_c = keystone_client.Client(session=session.Session(auth=auth))
+    try:
+        result['user'] = keystone_c.users.get(module.params['id']).to_dict()
+    except NotFound:
+        module.fail_json(msg=f'No such user: {module.params["id"]}', **result)
 
     module.exit_json(**result)
-
 
 def main():
     run_module()

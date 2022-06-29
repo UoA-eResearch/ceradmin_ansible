@@ -4,7 +4,9 @@ from __future__ import (absolute_import, division, print_function)
 
 import os
 import novaclient.client as nova_client
-from keystoneauth1 import identity, session
+from novaclient.exceptions import NotFound
+from keystoneauth1 import session
+from keystoneauth1.identity import v3
 from ansible.module_utils.basic import AnsibleModule
 
 __metaclass__ = type
@@ -88,21 +90,22 @@ def run_module():
 
     os_compute_api_version: float = 2.83
     result['changed'] = False
-    auth = identity.v3.application_credential.ApplicationCredential(
+    auth = v3.application_credential.ApplicationCredential(
                auth_url=os.environ['OS_AUTH_URL'],
                application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
                application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
-    novac = nova_client.Client(os_compute_api_version, session=sess)
+    nova_c = nova_client.Client(os_compute_api_version, session=sess)
     instance_id = module.params['instance_id']
     tag = module.params['tag']
-    server = novac.servers.get(instance_id)
-    if tag not in server.tag_list():
-        server.add_tag(tag)
-        result['changed'] = True
+    try:
+        server = nova_c.servers.get(instance_id)
+        if tag not in server.tag_list():
+            server.add_tag(tag)
+            result['changed'] = True
+    except NotFound:
+        module.fail_json(msg=f'No such server: {instance_id}', **result)
 
-    # in the event of a successful module execution, you will want to
-    # simple AnsibleModule.exit_json(), passing the key/value results
     module.exit_json(**result)
 
 

@@ -5,7 +5,9 @@ from __future__ import (absolute_import, division, print_function)
 import os
 import novaclient.client as nova_client
 import neutronclient.v2_0.client as neutron_client
-from keystoneauth1 import identity, session
+from novaclient.exceptions import NotFound
+from keystoneauth1.identity import v3
+from keystoneauth1 import session
 from ansible.module_utils.basic import AnsibleModule
 
 __metaclass__ = type
@@ -60,8 +62,8 @@ def get_server_ipv4s(server_dict):
 # Return all active floating ip objects attached to this server
 def get_floating_ips(sess, server_dict):
     ips = []
-    neutronc = neutron_client.Client(session=sess)
-    fips = neutronc.list_floatingips(project_id=server_dict['tenant_id'])['floatingips']
+    neutron_c = neutron_client.Client(session=sess)
+    fips = neutron_c.list_floatingips(project_id=server_dict['tenant_id'])['floatingips']
     server_ipv4s = get_server_ipv4s(server_dict)
     for fip in fips:
         if fip['status'] == 'ACTIVE' and fip['fixed_ip_address'] in server_ipv4s:
@@ -95,17 +97,19 @@ def run_module():
     os_compute_api_version: float = 2.83
     result['changed'] = False
     result['details'] = None
-    auth = identity.v3.application_credential.ApplicationCredential(
+    auth = v3.application_credential.ApplicationCredential(
              auth_url=os.environ['OS_AUTH_URL'],
              application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
              application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
-    novac = nova_client.Client(os_compute_api_version, session=sess)
-    server = novac.servers.get(module.params['instance_id'])
-    if server is not None:
+    nova_c = nova_client.Client(os_compute_api_version, session=sess)
+    try:
+        server = nova_c.servers.get(module.params['instance_id'])
         server_dict = server.to_dict()
         server_dict['floating_ips'] = get_floating_ips(sess, server_dict)
         result['details'] = server_dict
+    except NotFound:
+        module.fail_json(msg=f'No such server: {module.params["instance_id"]}', **result)
 
     module.exit_json(**result)
 
