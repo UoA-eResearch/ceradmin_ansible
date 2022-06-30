@@ -69,7 +69,7 @@ EXAMPLES = r'''
 # Pass in a message
 - name: Test with a message
   ceradmin.openstack.get_projects:
-    tags: 'auckland_new_condition_of_use_accepted'
+    tags: 'auckland_condition_of_use,accepted'
 '''
 
 RETURN = r'''
