@@ -115,7 +115,7 @@ def filter_by_ip_regex(server_dicts: list, ip_regex: str):
             for ipv4 in ipv4s:
                 if re.match(ip_regex, ipv4):
                     tmp.append(server_dict)
-                    continue
+                    break
     return tmp
 
 
