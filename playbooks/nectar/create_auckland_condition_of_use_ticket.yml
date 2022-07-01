@@ -14,41 +14,43 @@
         - auckland_condition_of_use
     register: get_tickets_result
 
-  - name: Fail if we already have a ticket for this allocation
-    fail:
+  - name: Do nothing if we already have a ticket for this allocation
+    debug:
       msg: |
-        "A ticket has already been created for allocation {{ allocation_id }}."
-        "To see it search Freshdesk tickets for tags 'security', 'allocation-{{ allocation_id }}'"
+        "A ticket has already been created for allocation {{ allocation_id }}. Nothing to do."
+        "To view ticket search Freshdesk for tags 'auckland_condition_of_use' and 'allocation-{{ allocation_id }}'"
     when: get_tickets_result.tickets is defined and get_tickets_result.tickets | length > 0
 
-  - name: Get allocation details from Nectar allocation API
-    ceradmin.nectar_allocation.get_allocation_details:
-      allocation_id: "{{ allocation_id }}"
-    register: alloc_details
+  - block:
+      - name: Get allocation details from Nectar allocation API
+        ceradmin.nectar_allocation.get_allocation_details:
+          allocation_id: "{{ allocation_id }}"
+        register: alloc_details
 
-  - name: Get user details from Keystone
-    ceradmin.openstack.get_user_by_email:
-      email: "{{ alloc_details.allocation.contact_email }}"
-    register: user_details
+      - name: Get user details from Keystone
+        ceradmin.openstack.get_user_by_email:
+          email: "{{ alloc_details.allocation.contact_email }}"
+        register: user_details
 
-  - name: Create Freshdesk ticket
-    include_role:
-      name: ceradmin.freshdesk.ticket
-      tasks_from: create_ticket_from_template
-    vars:
-      dryrun: "{{ dry_run }}"
-      template_file_name: auckland_condition_of_use.tpl
-      template_vars:
-        first_name: "{{ user_details.user.full_name | split(' ') | first }}"
-        project_name: "{{ alloc_details.allocation.project_name }}"
-      ticket_recipient: "{{ alloc_details.allocation.contact_email }}"
-      ticket_subject: Change in Nectar condition of use
-      ticket_status: 6
-      ticket_tags:
-        - "allocation-{{ allocation_id }}"
-        - auckland_condition_of_use
+      - name: Create Freshdesk ticket
+        include_role:
+          name: ceradmin.freshdesk.ticket
+          tasks_from: create_ticket_from_template
+        vars:
+          dryrun: "{{ dry_run }}"
+          template_file_name: auckland_condition_of_use.tpl
+          template_vars:
+            first_name: "{{ user_details.user.full_name | split(' ') | first }}"
+            project_name: "{{ alloc_details.allocation.project_name }}"
+          ticket_recipient: "{{ alloc_details.allocation.contact_email }}"
+          ticket_subject: Change in Nectar condition of use
+          ticket_status: 6
+          ticket_tags:
+            - "allocation-{{ allocation_id }}"
+            - auckland_condition_of_use
 
-  - name: Print ticket details
-    debug:
-      msg:
-       -  "{{ details }}"
+      - name: Print ticket details
+        debug:
+          msg: "{{ details }}"
+
+    when: get_tickets_result.tickets is not defined or get_tickets_result.tickets | length == 0
