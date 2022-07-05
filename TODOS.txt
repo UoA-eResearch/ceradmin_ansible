@@ -1,0 +1,3 @@
+- Write playbook to ping all servers tagged with management_account_configured
+- Write playbook to create security groups with UoA CIDR ranges for SSH, HTTP(S), MySQL, PostgreSQL
+- Write playbook for ssh key rotation
