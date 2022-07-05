@@ -7,7 +7,7 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
 
-  - name: Get tickets where researcher accepted new condition of use by looking at tickets and tags on tickets
+  - name: Get tickets where researcher accepted new condition of use by looking at tickets and the  tags on the tickets
     ceradmin.freshdesk.get_tickets:
       tags:
         - auckland_condition_of_use
@@ -19,13 +19,9 @@
        allocation_ids: "{{ allocation_ids|default([]) + [item | select('match','^allocation-*') | first | regex_replace('^allocation-(.*)$', '\\1') ]  }}"
     loop: "{{ get_tickets_result.tickets | map(attribute='tags') }}"
 
-  - name: Get Nectar projects (defaults to NZ-only project)
+  - name: Get NZ Nectar projects
     ceradmin.openstack.get_projects:
     register: get_projects_result
-    environment:
-      OS_APPLICATION_CREDENTIAL_ID: "{{ application_credential_id }}"
-      OS_APPLICATION_CREDENTIAL_SECRET: "{{ application_credential_secret }}"
-      OS_AUTH_URL: "{{ auth_url }}"
 
   - name: Create dict from Nectar projects with allocation id as key
     set_fact:
@@ -40,4 +36,4 @@
       project_id: "{{ item.value.id }}"
       tag: auckland_condition_of_use_accepted
     loop: "{{ lookup('ansible.builtin.dict', allocation_id_project_map) }}"
-    when: item.key|string in allocation_ids
+    when: item.key|string in allocation_ids and 'auckland_condition_of_use_accepted' not in item.value.tags
