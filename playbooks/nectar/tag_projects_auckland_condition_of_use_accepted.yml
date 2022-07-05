@@ -7,7 +7,7 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
 
-  - name: Get tickets where researcher accepted new condition of use by looking at tickets and the  tags on the tickets
+  - name: Get tickets where researcher accepted new condition of use by looking at tickets and tags on the tickets
     ceradmin.freshdesk.get_tickets:
       tags:
         - auckland_condition_of_use
