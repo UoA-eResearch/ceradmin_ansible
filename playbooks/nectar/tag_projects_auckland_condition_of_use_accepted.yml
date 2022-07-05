@@ -31,7 +31,7 @@
       label: "{{ item.id }}"
     when: item.allocation_id is defined and item.allocation_id|string in allocation_ids
 
-  - name: Tag project
+  - name: Tag project where necessary
     ceradmin.openstack.set_project_tag:
       project_id: "{{ item.value.id }}"
       tag: auckland_condition_of_use_accepted
