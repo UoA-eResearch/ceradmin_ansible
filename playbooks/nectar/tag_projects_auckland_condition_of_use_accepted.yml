@@ -19,7 +19,7 @@
        allocation_ids: "{{ allocation_ids|default([]) + [item | select('match','^allocation-*') | first | regex_replace('^allocation-(.*)$', '\\1') ]  }}"
     loop: "{{ get_tickets_result.tickets | map(attribute='tags') }}"
 
-  - name: Get NZ Nectar projects
+  - name: Get all NZ Nectar projects from OpenStack
     ceradmin.openstack.get_projects:
     register: get_projects_result
 
