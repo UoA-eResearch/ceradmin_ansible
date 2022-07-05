@@ -96,7 +96,7 @@ def filter_by_enabled(projects, enabled: bool):
 def run_module():
 
     module_args = dict(
-        domain_id=dict(type='str', required=False, default='b38a521521d844e49daf98571fa8a153'),# nz
+        domain_id=dict(type='str', required=False, default='b38a521521d844e49daf98571fa8a153'),#nz
         user=dict(type='str', required=False, default=None),
         enabled=dict(type='bool', required=False, default=None),
         tags=dict(type='str', required=False, default=None),
