@@ -1,0 +1,43 @@
+---
+- name: Tag projects that have accepted the auckland condition of use
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+
+  - name: Get tickets where researcher accepted new condition of use by looking at tickets and tags on tickets
+    ceradmin.freshdesk.get_tickets:
+      tags:
+        - auckland_condition_of_use
+        - accepted
+    register: get_tickets_result
+
+  - name: Create list of all allocation ids by extracting them from the tags on the Freshdesk tickets
+    ansible.builtin.set_fact:
+       allocation_ids: "{{ allocation_ids|default([]) + [item | select('match','^allocation-*') | first | regex_replace('^allocation-(.*)$', '\\1') ]  }}"
+    loop: "{{ get_tickets_result.tickets | map(attribute='tags') }}"
+
+  - name: Get Nectar projects (defaults to NZ-only project)
+    ceradmin.openstack.get_projects:
+    register: get_projects_result
+    environment:
+      OS_APPLICATION_CREDENTIAL_ID: "{{ application_credential_id }}"
+      OS_APPLICATION_CREDENTIAL_SECRET: "{{ application_credential_secret }}"
+      OS_AUTH_URL: "{{ auth_url }}"
+
+  - name: Create dict from Nectar projects with allocation id as key
+    set_fact:
+        allocation_id_project_map: "{{ allocation_id_project_map|default({}) | combine( {item.allocation_id: {'id': item.id, 'tags': item.tags} } ) }}"
+    loop: "{{ get_projects_result.projects }}"
+    loop_control:
+      label: "{{ item.id }}"
+    when: item.allocation_id is defined and item.allocation_id|string in allocation_ids
+
+  - name: Tag project
+    ceradmin.openstack.set_project_tag:
+      project_id: "{{ item.value.id }}"
+      tag: auckland_condition_of_use_accepted
+    loop: "{{ lookup('ansible.builtin.dict', allocation_id_project_map) }}"
+    when: item.key|string in allocation_ids
