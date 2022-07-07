@@ -52,9 +52,8 @@
       ticket_subject: Configure SSH access for Nectar@Auckland operators
       ticket_status: 6
       ticket_tags:
-        - auckland
         - "allocation-{{ allocation_id }}"
-        - configure_operator_access
+        - auckland_operator_access
 
   - name: Print ticket details
     debug:
