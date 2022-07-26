@@ -92,7 +92,7 @@ def get_os_information_from_console_log(server):
                     os_t = 'linux'
                     os_f = 'rocky'
                     os_v = re.search('.*Rocky [a-zA-Z]+ (\\d+\\.*\\d*).*', line).group(1)
-                elif 'Fedora in line':
+                elif 'Fedora' in line:
                     os_t = 'linux'
                     os_f = 'fedora'
                     os_v = re.search('.*Fedora.* (\\d+).*', line).group(1)
