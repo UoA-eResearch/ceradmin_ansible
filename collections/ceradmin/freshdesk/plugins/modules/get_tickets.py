@@ -18,7 +18,8 @@ description: Get Freshdesk tickets
 options:
     statuses:
         description: List of status ids to filter by. 
-                     Each status is one of [2 (Open), 3 (Pending), 4 (Resolved), 5 (Waiting on Customer)]
+                     Each status is one of [2 (Open), 3 (Pending), 4 (Resolved), 
+                     5 (Closed), 6 (Waiting on Customer)]
         required: false
         type: list
     tags:
