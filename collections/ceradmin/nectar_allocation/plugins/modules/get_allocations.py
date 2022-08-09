@@ -47,7 +47,7 @@ EXAMPLES = r'''
 '''
 
 RETURN = r'''
-# Returns an entire allocation object
+# Returns a list of allocation objects
 '''
 
 
