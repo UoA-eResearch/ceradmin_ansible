@@ -12,10 +12,10 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: get_allocation_details
-short_description: Return the first public IP and the project id
+module: get_allocations
+short_description: Return allocations. Can be filtered.
 version_added: "1.0.0"
-description: Return the first public IP and the project id
+description: Get a list of allocations, based on filters
 
 options:
     allocation_home
