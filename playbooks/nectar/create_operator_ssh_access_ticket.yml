@@ -8,8 +8,8 @@
   tasks:
 
   - name: Get details from Nectar allocation API
-    ceradmin.nectar_allocation.get_allocation_details:
-      allocation_id: "{{ allocation_id }}"
+    ceradmin.nectar_allocation.get_allocation:
+      id: "{{ allocation_id }}"
     register: alloc_details
 
   - name: Get active Linux servers of project that don't have tenable linked

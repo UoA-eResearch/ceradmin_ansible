@@ -23,8 +23,8 @@
 
   - block:
       - name: Get allocation details from Nectar allocation API
-        ceradmin.nectar_allocation.get_allocation_details:
-          allocation_id: "{{ allocation_id }}"
+        ceradmin.nectar_allocation.get_allocation:
+          id: "{{ allocation_id }}"
         register: alloc_details
 
       - name: Get user details from Keystone
