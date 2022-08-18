@@ -8,6 +8,7 @@ import novaclient.client as nova_client
 import neutronclient.v2_0.client as neutron_client
 from keystoneauth1.identity import v3
 from keystoneauth1 import session
+from oslo_utils import timeutils
 from ansible.module_utils.basic import AnsibleModule
 
 __metaclass__ = type
@@ -32,6 +33,10 @@ options:
         description: IP regex to filter the list of servers by
         required: false
         type: str
+    older_than:
+        description: exclude servers that have been created less than the provided number of seconds ago
+        required: false
+        type: int
     
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
@@ -49,6 +54,7 @@ EXAMPLES = r'''
     search_opts: { 'all_tenants': True, 'availability_zone': 'auckland' }
     metadata_filter: { 'os_type': 'linux' }
     ip_regex: '130\\.216\\..*'
+    older_than: 604800
 '''
 
 RETURN = r'''
@@ -104,6 +110,17 @@ def filter_by_metadata(server_dicts: list, metadata_filter: dict):
     return tmp
 
 
+def filter_by_age(server_dicts: list, older_than: int):
+    tmp = []
+    if older_than is None:
+        tmp = server_dicts
+    else:
+        for server_dict in server_dicts:
+            if timeutils.is_older_than(server_dict['created'], older_than):
+                tmp.append(server_dict)
+    return tmp
+
+
 def filter_by_ip_regex(server_dicts: list, ip_regex: str):
     tmp = []
     if ip_regex is None:
@@ -123,7 +140,8 @@ def run_module():
     module_args = dict(
         search_opts=dict(type='dict', required=True),
         metadata_filter=dict(type='dict', required=False),
-        ip_regex=dict(type='str', required=False)
+        ip_regex=dict(type='str', required=False),
+        older_than=dict(type='int', required=False)
     )
 
     result = dict(
@@ -160,6 +178,7 @@ def run_module():
         server_dicts.append(tmp)
     server_dicts = filter_by_metadata(server_dicts, module.params['metadata_filter'])
     server_dicts = filter_by_ip_regex(server_dicts, module.params['ip_regex'])
+    server_dicts = filter_by_age(server_dicts, module.params['older_than'])
     result['servers'].extend(server_dicts)
 
     module.exit_json(**result)
