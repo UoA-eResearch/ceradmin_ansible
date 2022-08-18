@@ -1,0 +1,94 @@
+---
+- name: Create tickets for allocations that have accepted the new condition of use and have Linux servers older than 1 week
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+
+  - name: Get NZ Nectar projects that accepted condition of use
+    ceradmin.openstack.get_projects:
+      tags: auckland_condition_of_use_accepted
+    register: get_projects_result
+
+  - name: Create dict from those projects with allocation id as key
+    set_fact:
+      allocation_map: "{{ allocation_map|default({}) | combine( { item.allocation_id: {'project_id': item.id, 'accepted_condition_of_use': True } } ) }}"
+    loop: "{{ get_projects_result.projects }}"
+    loop_control:
+      label: "{{ item.id }}"
+
+  - name: Get active allocations from nectar allocation api. This is where we get the contact email addresses from
+    ceradmin.nectar_allocation.get_allocations:
+      allocation_home: auckland
+      status: A
+    register: get_allocations_result
+
+  - name: Augment allocation_map dict with contact_email and project information
+    set_fact:
+            allocation_map: "{{ allocation_map|default({}) | combine(  {item.id: { 'contact_email': item.contact_email, 'project_id': item.project_id, 'project_name': item.project_name } }, recursive=True ) }}"
+    loop: "{{ get_allocations_result.allocations }}"
+    loop_control:
+      label: "{{ item.id }}"
+
+  - name: Get tickets for allocations where researchers are in the process of setting up SSH access
+    ceradmin.freshdesk.get_tickets:
+      tags:
+        - auckland_operator_access
+      statuses:
+        - 2
+        - 3
+        - 6
+    register: secprep_in_progress_tickets
+
+  - name: Create list of all allocation ids where setting up the ssh key is in progress
+    ansible.builtin.set_fact:
+       secprep_in_progress_allocation_ids: "{{ secprep_in_progress_allocation_ids|default([]) + [item | select('match','^allocation-*') | first | regex_replace('^allocation-(.*)$', '\\1') ] }}"
+    loop: "{{ secprep_in_progress_tickets.tickets | map(attribute='tags') }}"
+
+  - name: Get active Linux servers in auckland with a public IP address that don't have tenable linked and are older than 1 week
+    ceradmin.openstack.get_servers:
+      search_opts:
+        availability_zone: auckland
+        all_tenants: True
+        status: ACTIVE
+        not-tags: tenable_agent_linked
+      metadata_filter:
+        os_type: linux
+      ip_regex: 130\.216\..*
+      older_than: 604800
+    register: get_servers_result
+
+  - name: Create a map that contains a list of servers for each project
+    ansible.builtin.set_fact:
+            project_server_map: "{{ project_server_map|default({}) | combine( { item.tenant_id : [{'id': item.id, 'name': item.name, 'metadata': item.metadata}] }, list_merge='append' ) }}"
+    loop: "{{ get_servers_result.servers }}"
+    loop_control:
+      label: "{{ item.id }}"
+
+  - name: Finally, create Freshdesk tickets
+    include_role:
+      name: ceradmin.freshdesk.ticket
+      tasks_from: create_ticket_from_template
+    vars:
+      dryrun: "{{ dry_run }}"
+      template_file_name: configure_operator_ssh_access.tpl
+      template_vars:
+        project_name: "{{ allocation.value.project_name }}"
+        done_by_date: "{{ '%A, %d %B %Y' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 14 )  ) }}"
+        servers: "{{ project_server_map[allocation.value.project_id] }}"
+      ticket_recipient: "{{ allocation.value.contact_email }}"
+      ticket_subject: Configure SSH access for Nectar@Auckland operators
+      ticket_status: 6
+      ticket_tags:
+        - auckland
+        - "allocation-{{ allocation.key }}"
+        - configure_operator_access
+    loop: "{{ lookup('ansible.builtin.dict', allocation_map) }}"
+    loop_control:
+      loop_var: allocation
+      label: "{{ allocation.key }}"
+    when: "'accepted_condition_of_use' in allocation.value and
+          allocation.value.project_id in project_server_map and
+          allocation.key not in secprep_in_progress_allocation_ids"
