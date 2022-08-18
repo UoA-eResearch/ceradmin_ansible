@@ -2,15 +2,11 @@
     <head>
     </head>
     <body>
-      Dear {{ item.first_name }},
+      Hi,
       <br><br>
-      Thank you for consenting to grant University of Auckland Nectar operational
-      staff access to your Nectar VM(s) for vulnerability scanning for project
-      <i>{{ item.project_name }}</i>.
+      As part of a Nectar security upgrade in Auckland we will be installing a vulnerability scanner on Linux VMs.
       <br><br>
-      We will initially install the vulnerability scanner on Linux VMs.
-      <br><br>
-      You have the following Linux VM(s) with a public IP address:
+      In your project <i>{{ item.project_name }} you have the following Linux VM(s) with a public IP address:
       <br><br>
 
       <table  border="3" width=auto style="border-collapse: collapse;">
@@ -33,8 +29,9 @@
     <br><br>
     https://support.ehelp.edu.au/support/solutions/articles/6000256293-university-of-auckland-specific-configure-operator-public-ssh-key
     <br><br>
-    Please let us know once this is done, and don't hesitate to get in touch you are
-    not certain what we're asking for.
+    Please do this before {{ item.done_by_date }}, and don't hesitate to get in touch if you are not certain what we're asking for.<br>
+    If you need more time, please reply to this e-mail and let us know by when you can look into this.<br>
+    In case we don't hear back from you we will unfortunately have to disable access to the VM(s).
     <br><br><br>
 
     Many thanks,<br>
