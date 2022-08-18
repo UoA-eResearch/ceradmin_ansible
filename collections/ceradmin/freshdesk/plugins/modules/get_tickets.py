@@ -22,6 +22,7 @@ options:
                      5 (Closed), 6 (Waiting on Customer)]
         required: false
         type: list
+        default: []
     tags:
         description: List of tags to filter by
         required: false
@@ -61,7 +62,7 @@ def convert_ticket(ticket):
 def run_module():
     module_args = dict(
         statuses=dict(type='list', required=False, default=[]),
-        tags=dict(type='list', required=False, default=[]),
+        tags=dict(type='list', required=False, default=[])
     )
 
     result = dict(
@@ -90,7 +91,7 @@ def run_module():
         tag_string = " AND ".join([f'tag:"{x}"' for x in tags])
         filter_string += f" AND {tag_string}"
     if len(statuses) > 0:
-        status_string = " OR ".join([f'status:{x.value}' for x in statuses])
+        status_string = " OR ".join([f'status:{x}' for x in statuses])
         filter_string += f" AND ({status_string})"
     tickets = api.tickets.filter_tickets(filter_string)
 
