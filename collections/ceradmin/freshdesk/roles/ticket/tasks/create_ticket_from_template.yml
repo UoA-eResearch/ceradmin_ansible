@@ -1,9 +1,11 @@
 # tasks file for create
 - name: Verify required variables are defined
   fail:
-    msg: "Variable '{{ item }}' is not defined"
-  when: item not in vars
+    msg: "Variable '{{ item_to_verify }}' is not defined"
+  when: item_to_verify not in vars
   with_items: "{{ required_vars_ticket }}"
+  loop_control:
+    loop_var: item_to_verify
 
 - name: Create temporary file for ticket body
   ansible.builtin.tempfile:
@@ -28,6 +30,10 @@
     tags: "{{ ticket_tags }}"
     dry_run: "{{ dryrun }}"
   register: details
+
+- name: Print ticket details
+  debug:
+    msg: "{{ details }}"
 
 - name: Delete temporary file
   ansible.builtin.file:
