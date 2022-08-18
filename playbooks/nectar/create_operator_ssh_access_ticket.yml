@@ -2,7 +2,7 @@
 - name: Request researcher to configure SSH access for Nectar@Auckland operators
   hosts: localhost
   connection: local
-  gather_facts: no
+  gather_facts: true
   vars:
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
@@ -45,7 +45,7 @@
       dryrun: "{{ dry_run }}"
       template_file_name: configure_operator_ssh_access.tpl
       template_vars:
-        first_name: "{{ user_details.user.full_name | split(' ') | first }}"
+        done_by_date: "{{ '%A, %d %B %Y' | strftime( ( ansible_date_time.epoch | int ) + ( 86400 * 14 )  ) }}"
         project_name: "{{ alloc_details.allocation.project_name }}"
         servers: "{{ get_servers_result.servers }}"
       ticket_recipient: "{{ alloc_details.allocation.contact_email }}"
@@ -54,8 +54,3 @@
       ticket_tags:
         - "allocation-{{ allocation_id }}"
         - auckland_operator_access
-
-  - name: Print ticket details
-    debug:
-      msg:
-       -  "{{ details }}"
