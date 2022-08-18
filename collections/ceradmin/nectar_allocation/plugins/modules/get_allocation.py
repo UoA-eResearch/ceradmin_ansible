@@ -12,20 +12,20 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: get_allocation_details
-short_description: Return the first public IP and the project id
+module: get_allocation
+short_description: Return an allocation object
 version_added: "1.0.0"
-description: Return the first public IP and the project id
+description: Return an allocation object
 
 options:
-    allocation_id:
+    id:
         description: ID of the Nectar allocation
         required: true
         type: str
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
 extends_documentation_fragment:
-    - ceradmin.openstack.get_allocation_details
+    - ceradmin.openstack.get_allocation
 
 author:
     - Martin Feller (@mondkaefer)
@@ -34,8 +34,8 @@ author:
 EXAMPLES = r'''
 # Pass in a message
 - name: Test with a message
-  openstack.get_allocation_details:
-    allocation_id: 9654
+  openstack.get_allocation:
+    id: 9654
 
 '''
 
@@ -47,7 +47,7 @@ RETURN = r'''
 def run_module():
     # define available arguments/parameters a user can pass to the module
     module_args = dict(
-        allocation_id=dict(type='str', required=True)
+        id=dict(type='str', required=True)
     )
 
     # seed the result dict in the object
@@ -90,9 +90,9 @@ def run_module():
     sess = session.Session(auth=auth)
     allocationc = allocation_client.Client(1, session=sess)
     try:
-        result['allocation'] = allocationc.allocations.get(module.params['allocation_id']).to_dict()
+        result['allocation'] = allocationc.allocations.get(module.params['id']).to_dict()
     except NotFound:
-        module.fail_json(msg=f'No such allocation: {module.params["allocation_id"]}', **result)
+        module.fail_json(msg=f'No such allocation: {module.params["id"]}', **result)
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results
