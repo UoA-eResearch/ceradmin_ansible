@@ -49,8 +49,4 @@
             - "allocation-{{ allocation_id }}"
             - auckland_condition_of_use
 
-      - name: Print ticket details
-        debug:
-          msg: "{{ details }}"
-
     when: get_tickets_result.tickets is not defined or get_tickets_result.tickets | length == 0
