@@ -30,9 +30,9 @@
     https://support.ehelp.edu.au/support/solutions/articles/6000256293-university-of-auckland-specific-configure-operator-public-ssh-key
     <br><br>
     Please do this before {{ item.done_by_date }} and let us know when you are done.<br>
-    And don't hesitate to get in touch if you are not certain what we're asking for or you want to clarify something.<br>
+    Don't hesitate to get in touch if you need a hand or you want to clarify something.<br>
     If you need more time, please reply to this e-mail and let us know by when you can look into this.<br>
-    In case we don't hear back from you we will unfortunately have to disable access to the VM(s).
+    In case we don't hear back from you by {{ item.done_by_date }} we will unfortunately have to disable access to the VM(s).
     <br><br><br>
 
     Many thanks,<br>
