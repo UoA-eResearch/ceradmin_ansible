@@ -82,9 +82,8 @@
       ticket_subject: Configure SSH access for Nectar@Auckland operators
       ticket_status: 6
       ticket_tags:
-        - auckland
         - "allocation-{{ allocation.key }}"
-        - configure_operator_access
+        - auckland_operator_access
     loop: "{{ lookup('ansible.builtin.dict', allocation_map) }}"
     loop_control:
       loop_var: allocation
