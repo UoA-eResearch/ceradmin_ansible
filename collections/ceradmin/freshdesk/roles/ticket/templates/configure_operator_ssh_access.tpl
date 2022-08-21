@@ -6,7 +6,7 @@
       <br><br>
       As part of a Nectar security upgrade in Auckland we will be installing a vulnerability scanner on Linux VMs.
       <br><br>
-      In your project <i>{{ item.project_name }} you have the following Linux VM(s) with a public IP address:
+      In your project <i>{{ item.project_name }}</i> you have the following Linux VM(s) with a public IP address:
       <br><br>
 
       <table  border="3" width=auto style="border-collapse: collapse;">
