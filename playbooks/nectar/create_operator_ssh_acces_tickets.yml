@@ -90,4 +90,4 @@
       label: "{{ allocation.key }}"
     when: "'accepted_condition_of_use' in allocation.value and
           allocation.value.project_id in project_server_map and
-          allocation.key not in secprep_in_progress_allocation_ids"
+          allocation.key|string not in secprep_in_progress_allocation_ids"
