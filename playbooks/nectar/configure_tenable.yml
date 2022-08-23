@@ -1,0 +1,57 @@
+---
+# Do prerequisite checks
+- name: Prerequisite checks
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+
+  - name: Get public IP address of OpenStack server
+    ceradmin.openstack.get_server_details:
+      instance_id: "{{ instance_id }}"
+    register: server
+
+  - name: Register first public ipv4
+    set_fact:
+      public_ip: "{{ server.details |
+                     ceradmin.openstack.get_first_server_ipv4('130\\.216\\.\\d{1,3}\\.\\d{1,3}$') }}"
+
+  - name: Fail if didn't get a public IP address
+    fail:
+      msg: "VM does not appear to have a public IP address"
+    when: public_ip is not defined or public_ip == ""
+
+  - name: Create temporary host group with single IP
+    add_host:
+      hostname: "{{ public_ip }}"
+      groupname: tmp_group
+
+# Install and register tenable agent
+- hosts: tmp_group,!localhost
+  become: true
+  tasks:
+
+  - name: Install and register tenable agent
+    include_role:
+      name: ceradmin.tenable.agent
+      tasks_from: install
+    vars:
+      # Why we need to use hostvars here: 
+      # https://stackoverflow.com/questions/33896847/how-do-i-set-register-a-variable-to-persist-between-plays-in-ansible
+      tenable_agent_name: "pid={{ hostvars['localhost']['server'].details.tenant_id }},uuid={{ instance_id }}"
+
+
+# Tag VM to indicate that tenable has been set up
+- name: Tag OpenStack VM
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+  - name: Set tag tenable_agent_linked
+    ceradmin.openstack.set_server_tag:
+      instance_id: "{{ instance_id }}"
+      tag: tenable_agent_linked
