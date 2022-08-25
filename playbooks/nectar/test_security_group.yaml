@@ -1,5 +1,5 @@
 - name:  test security groups
-  hosts: localhost
+  hosts: all
   gather_facts: no
   tasks:
     - openstack.cloud.security_group_info:
@@ -7,11 +7,13 @@
         name: ansible_win_ping
         project_id: 0dce37a179dc4f9fa3cc33ff31052fda
       register: sg
+      delegate_to: localhost
     
     - name: Print return information from the previous task
       ansible.builtin.debug:
         var: sg
         verbosity: 2
+      delegate_to: localhost
     
 #    - openstack.cloud.security_group_info:
 #        cloud: openstack
