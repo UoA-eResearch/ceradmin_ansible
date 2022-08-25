@@ -1,0 +1,20 @@
+- name:  create security groups
+  hosts: localhost  #see ansible_hosts file for configuration
+  #hosts: all
+  gather_facts: no
+  tasks:
+
+  # Update the existing 'foo' security group description
+  #- openstack.cloud.security_group:
+  #    cloud: openstack
+  #    state: present
+  #    name: foo
+  #    description: updated description for the foo security group
+  
+  # Create a security group for a given project
+  - openstack.cloud.security_group:
+      cloud: openstack
+      state: present
+      name: foo
+      project: 0dce37a179dc4f9fa3cc33ff31052fda
+
