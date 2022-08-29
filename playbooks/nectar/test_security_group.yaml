@@ -1,3 +1,4 @@
+
 - name:  test security groups
   hosts: localhost
   connection: local
@@ -7,6 +8,11 @@
         cloud: openstack
         name: ansible_win_ping
         project_id: 0dce37a179dc4f9fa3cc33ff31052fda
+        auth:
+          application_credential_secret: " {{lookup('env', 'APPLICATION_CREDENTIAL_SECRET') }} "
+          application_credential_id: "{{ lookup('env', 'APPLICATION_CREDENTIAL_ID') }}"
+          auth_url: "{{ lookup('env', 'AUTH_URL') }}"
+        auth_type: "v3applicationcredential"
       register: sg
     
     - name: Print return information from the previous task
