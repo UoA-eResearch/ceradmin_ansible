@@ -1,36 +1,10 @@
-
+   
 - name:  test security groups
   hosts: localhost
   connection: local
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
   gather_facts: no
-  tasks:
-
-
-    - openstack.cloud.security_group_info:
-        cloud: openstack
-        name: ansible_win_ping
-        project_id: 0dce37a179dc4f9fa3cc33ff31052fda
-        auth_type: "v3applicationcredential"
-        auth:
-          auth_url: https://keystone.rc.nectar.org.au:5000/v3/
-          application_credential_id: "{{ lookup('env', 'OS_APPLICATION_CREDENTIAL_ID') }} "
-          application_credential_secret: "{{ lookup('env','OS_APPLICATION_CREDENTIAL_SECRET') }} "
-
-      register: sg
-    
-    - name: Print return information from the previous task
-      ansible.builtin.debug:
-        var: sg
-        verbosity: 2
-    
-#    - openstack.cloud.security_group_info:
-#        cloud: openstack
-#        project_id: 0dce37a179dc4f9fa3cc33ff31052fda
-#      register: sgs
-#
-#
-#    - name: Print return information from the previous task
-#      ansible.builtin.debug:
-#        var: sgs
-#        verbosity: 2
-# 
+  roles:
+    - check_security_groups
