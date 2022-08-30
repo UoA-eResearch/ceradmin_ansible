@@ -10,11 +10,7 @@
         cloud: openstack
         name: ansible_win_ping
         project_id: 0dce37a179dc4f9fa3cc33ff31052fda
-        auth:
-          auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
-          application_credential_id: "{{ lookup('env', 'OS_APPLICATION_CREDENTIAL_ID') }}"
-          application_credential_secret: " {{ lookup('env', 'OS_APPLICATION_CREDENTIAL_SECRET') }} "
-        auth_type: "v3applicationcredential"
+        config_file: /etc/ansible/openstack.yml
       register: sg
     
     - name: Print return information from the previous task
