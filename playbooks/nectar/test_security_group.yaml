@@ -10,7 +10,7 @@
         cloud: openstack
         name: ansible_win_ping
         project_id: 0dce37a179dc4f9fa3cc33ff31052fda
-        config_file: /etc/ansible/openstack.yml
+        auth_type: "v3applicationcredential"
       register: sg
     
     - name: Print return information from the previous task
