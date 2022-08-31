@@ -1,0 +1,27 @@
+- name:  test security groups
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - openstack.cloud.security_group_info:
+        cloud: openstack
+        name: ansible_win_ping
+        project_id: 0dce37a179dc4f9fa3cc33ff31052fda
+      register: sg
+    
+    - name: Print return information from the previous task
+      ansible.builtin.debug:
+        var: sg
+        verbosity: 2
+    
+#    - openstack.cloud.security_group_info:
+#        cloud: openstack
+#        project_id: 0dce37a179dc4f9fa3cc33ff31052fda
+#      register: sgs
+#
+#
+#    - name: Print return information from the previous task
+#      ansible.builtin.debug:
+#        var: sgs
+#        verbosity: 2
+# 
