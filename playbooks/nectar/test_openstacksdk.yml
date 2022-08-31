@@ -1,0 +1,17 @@
+---
+- name: Get security groups
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+
+  - name: Get NZ Nectar projects that accepted condition of use
+    openstack.cloud.security_group_info:
+      auth_type: v3applicationcredential
+      project_id: 0dce37a179dc4f9fa3cc33ff31052fda
+    register: result
+
+  - debug:
+      msg: "{{ result }}"
