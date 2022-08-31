@@ -1,5 +1,5 @@
 ---
-- name: Get security groups
+- name: Test module openstack.cloud.security_group_info with app credential
   hosts: localhost
   connection: local
   gather_facts: false
@@ -7,7 +7,7 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
 
-  - name: Get NZ Nectar projects that accepted condition of use
+  - name: Get security groups of project Auckland-CeR
     openstack.cloud.security_group_info:
       auth_type: v3applicationcredential
       project_id: 0dce37a179dc4f9fa3cc33ff31052fda
