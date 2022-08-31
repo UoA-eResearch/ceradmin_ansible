@@ -1,18 +1,11 @@
    
-#- name: log foo_result to file
-#  lineinfile:
-#     line: "{{application_credential_id  }}"
-#     insertafter: EOF
-#     dest: /home/ubuntu/tmp/file
-
 - name: security_group_info
   openstack.cloud.security_group_info:
     project_id: 0dce37a179dc4f9fa3cc33ff31052fda
-    auth_type: "v3applicationcredential"
-    auth: "{{ os_auth }}"
-    #  auth_url: "{{ auth_url }}"
-    #  application_credential_id: "{{ application_credential_id }} "
-    #  application_credential_secret: "{{ application_credential_secret }} "
+    #auth_type: "v3applicationcredential"
+    #auth: "{{ os_auth }}"
+    #auth:
+    #        application_credential_id:  '{{ lookfor("env", OS_APPLICATION_CREDENTIAL_ID) }}'
     
   register: sg
 
