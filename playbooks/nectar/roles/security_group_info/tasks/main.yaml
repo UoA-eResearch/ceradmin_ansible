@@ -3,7 +3,7 @@
   openstack.cloud.security_group_info:
     project_id: 0dce37a179dc4f9fa3cc33ff31052fda
     auth_type: "v3applicationcredential"
-    auth: "{{ os_auth }}"
+    #auth: "{{ os_auth }}"
     #auth:
     #        application_credential_id:  '{{ lookfor("env", OS_APPLICATION_CREDENTIAL_ID) }}'
     
