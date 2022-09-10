@@ -13,24 +13,29 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: set_server_tag
-short_description: Set a tag on a server
+module: server_tag
+short_description: Set/remove tags on/from a server
 version_added: "1.0.0"
-description: Set a tag on a server
+description: Set/remove tags on/from a server
 
 options:
     instance_id:
         description: ID of the Nectar server
         required: true
         type: str
-    tag:
-        description: tag value
-        required: true
+    state:
+        description: Should the resource be present or absent.
+        choices: [present, absent]
+        default: present
         type: str
+    tags:
+        description: tags to be added or removed
+        required: true
+        type: list
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
 extends_documentation_fragment:
-    - ceradmin.openstack.set_server_tag
+    - ceradmin.openstack.server_tag
 
 author:
     - Martin Feller (@mondkaefer)
@@ -39,9 +44,12 @@ author:
 EXAMPLES = r'''
 # Pass in a message
 - name: Test with a message
-  ceradmin.openstack.set_server_tag:
+  ceradmin.openstack.server_tag:
     instance_id: 5dd81950-5a21-4095-830a-150d68499095
-    tag: test
+    state: present
+    tags:
+      - test1
+      - test2
 '''
 
 RETURN = r'''
@@ -52,7 +60,8 @@ RETURN = r'''
 def run_module():
     module_args = dict(
         instance_id=dict(type='str', required=True),
-        tag=dict(type='str', required=True)
+        state=dict(default='present', choices=['absent', 'present'], required=True),
+        tags=dict(required=True, type='list')
     )
 
     result = dict(
@@ -81,12 +90,22 @@ def run_module():
     sess = session.Session(auth=auth)
     nova_c = nova_client.Client(os_compute_api_version, session=sess)
     instance_id = module.params['instance_id']
-    tag = module.params['tag']
+    state = module.params['state']
+    tags = module.params['tags']
+
     try:
         server = nova_c.servers.get(instance_id)
-        if tag not in server.tag_list():
-            server.add_tag(tag)
-            result['changed'] = True
+        server_tags = server.tag_list()
+        if state == 'present':
+            for tag in tags:
+                if tag not in server_tags:
+                    server.add_tag(tag)
+                    result['changed'] = True
+        elif state == 'absent':
+            for tag in tags:
+                if tag in server_tags:
+                    server.delete_tag(tag)
+                    result['changed'] = True
     except NotFound:
         module.fail_json(msg=f'No such server: {instance_id}', **result)
 

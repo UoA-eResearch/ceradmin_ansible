@@ -44,7 +44,7 @@
 
 
 # Tag VM to indicate that tenable has been set up
-- name: Tag OpenStack VM
+- name: Tag OpenStack VM and remove lock_date from metadata
   hosts: localhost
   connection: local
   gather_facts: no
@@ -52,6 +52,14 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
   - name: Set tag tenable_agent_linked
-    ceradmin.openstack.set_server_tag:
+    ceradmin.openstack.server_tag:
       instance_id: "{{ instance_id }}"
-      tag: tenable_agent_linked
+      state: present
+      tags:
+        - tenable_agent_linked
+  - name: Remove lock_date from metadata
+    ceradmin.openstack.server_metadata:
+      instance_id: "{{ instance_id }}"
+      state: absent
+      meta:
+        lock_date:

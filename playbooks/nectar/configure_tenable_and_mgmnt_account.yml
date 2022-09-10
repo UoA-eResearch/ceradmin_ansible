@@ -53,9 +53,11 @@
   tasks:
 
   - name: Set tag management_account_configured
-    ceradmin.openstack.set_server_tag:
+    ceradmin.openstack.server_tag:
       instance_id: "{{ instance_id }}"
-      tag: management_account_configured
+      state: present
+      tags:
+        - management_account_configured
 
 
 # Remove access for default account
@@ -88,6 +90,7 @@
 
 
 # Tag VM to indicate that tenable has been set up
+# and delete lock/pause-related metadata from the instance
 - name: Tag OpenStack VM
   hosts: localhost
   connection: local
@@ -96,6 +99,16 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
   - name: Set tag tenable_agent_linked
-    ceradmin.openstack.set_server_tag:
+    ceradmin.openstack.server_tag:
       instance_id: "{{ instance_id }}"
-      tag: tenable_agent_linked
+      state: present
+      tags:
+        - tenable_agent_linked
+  - name: Remove lock_date from metadata
+    ceradmin.openstack.server_metadata:
+      instance_id: "{{ instance_id }}"
+      state: absent
+      meta:
+        lock_date:
+
+
