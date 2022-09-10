@@ -76,8 +76,8 @@ def _get_keys_to_delete(server_metadata_keys=None, metadata_keys=None):
 def run_module():
     module_args = dict(
         instance_id=dict(type='str', required=True),
-        state=dict(default='present', choices=['absent', 'present'], required=True),
-        meta=dict(required=True, type='dict')
+        state=dict(choices=['absent', 'present'], required=True),
+        meta=dict(type='dict', required=True)
     )
 
     result = dict(

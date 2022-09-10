@@ -60,8 +60,8 @@ RETURN = r'''
 def run_module():
     module_args = dict(
         instance_id=dict(type='str', required=True),
-        state=dict(default='present', choices=['absent', 'present'], required=True),
-        tags=dict(required=True, type='list')
+        state=dict(choices=['absent', 'present'], required=True),
+        tags=dict(type='list', required=True)
     )
 
     result = dict(
