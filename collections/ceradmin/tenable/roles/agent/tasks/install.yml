@@ -84,13 +84,13 @@
          ansible_facts['distribution'] == "Fedora" or
          ansible_facts['distribution'] == "Rocky")
 
-- name: Install Nessus Agent deb from a local file for Ubuntu/Debian
-  apt:
-    deb: "{{ agent_installer_dest }}"
-  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and
-        nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and
-        (ansible_facts['distribution'] == "Ubuntu" or
-         ansible_facts['distribution'] == "Debian")
+#- name: Install Nessus Agent deb from a local file for Ubuntu/Debian
+#  apt:
+#    deb: "{{ agent_installer_dest }}"
+#  when: nessus_link_status.stdout.find(TENABLE_HOST|string) == -1 and
+#        nessus_link_status.stdout.find(TENABLE_PORT|string) == -1 and
+#        (ansible_facts['distribution'] == "Ubuntu" or
+#         ansible_facts['distribution'] == "Debian")
 
 - name: Link nessus agent to tenable
   shell: |
