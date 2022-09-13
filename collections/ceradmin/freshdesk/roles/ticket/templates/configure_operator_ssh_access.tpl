@@ -31,11 +31,17 @@
     <br><br>
     Please do this before {{ item.done_by_date }} and let us know when you are done.<br>
     Don't hesitate to get in touch if you need a hand or you want to clarify something.<br>
-    If you need more time, please reply to this e-mail and let us know by when you can look into this.<br>
-    In case we don't hear back from you by {{ item.done_by_date }} we will unfortunately have to disable access to the VM(s).
+    If you need more time, please reply to this e-mail and let us know by when you can look into this.
+    <br><br>
+    In case we don't hear back from you by {{ item.done_by_date }} we will unfortunately have
+    to pause and lock the VM(s).<br>
+    Once a VM is paused and locked you will not be able to log in and any services running
+    on the VM will not respond. Essentially, the VM will appear frozen.<br>
+    If this happens, do get in touch when you are ready to set up access for the Nectar@Auckland
+    team, and we will resume normal operations of the VM.
     <br><br><br>
 
-    Many thanks,<br>
+    Many thanks for paying attention to this matter,<br>
     Nectar@Auckland team, at the Centre for eResearch
   </body>
 </html>
