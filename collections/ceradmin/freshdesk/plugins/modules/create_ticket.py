@@ -27,6 +27,10 @@ options:
         description: Ticket body
         required: true
         type: str
+    template_vars:
+        description: Variables used in ticket body
+        required: true
+        type: dict
     status:
         description: Status of ticket. 
                      One of [2 (Open), 3 (Pending), 4 (Resolved), 5 (Waiting on Customer)]
@@ -77,6 +81,7 @@ EXAMPLES = r'''
     recipient: john@doe.com
     subject: Test ticket
     body: Hello world
+    template_vars: {'test': 'value'}
     status: 6
     ticket_type: Question
     dry_run: false
@@ -92,6 +97,9 @@ ticket_id:
 ticket_url:
     description: URL of newly created ticket
     type: str
+template_vars:
+    description: Template variables used in the body
+    type: dict
 '''
 
 
@@ -100,6 +108,7 @@ def run_module():
         recipient=dict(type='str', required=True),
         subject=dict(type='str', required=True),
         body=dict(type='str', required=True),
+        template_vars=dict(type='dict', required=True),
         status=dict(type='int', required=True),
         ticket_type=dict(type='str', required=True),
         priority=dict(type='int', required=False, default=1),
@@ -110,9 +119,10 @@ def run_module():
 
     result = dict(
         changed=False,
-        ticket_id=None,
-        ticket_url=None,
-        stdout=None
+        ticket_id='N/A',
+        ticket_url='N/A',
+        template_vars=None,
+        stdout='N/A'
     )
 
     module = AnsibleModule(
@@ -135,6 +145,7 @@ def run_module():
     group_id = int(os.environ['FRESHDESK_GROUP_ID'])
     subject = module.params['subject']
     body = module.params['body']
+    template_vars = module.params['template_vars']
     recipient = module.params['recipient']
     status = module.params['status']
     ticket_type = module.params['ticket_type']
@@ -158,6 +169,7 @@ Subject: {subject}
 Body:
 {body}
 --------'''
+        result['template_vars'] = template_vars
     else:
         api = API(domain, api_key)
         ticket = api.tickets.create_outbound_email(subject=subject, description=body, email=recipient,
@@ -166,6 +178,7 @@ Body:
                                                    type=ticket_type, tags=tags)
         result['ticket_id'] = ticket.id
         result['ticket_url'] = 'https://{}/helpdesk/tickets/{}'.format(domain, ticket.id)
+        result['template_vars'] = template_vars
         result['changed'] = True
 
     module.exit_json(**result)
