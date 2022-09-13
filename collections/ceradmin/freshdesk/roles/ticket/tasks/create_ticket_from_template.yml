@@ -25,6 +25,7 @@
     recipient: "{{ ticket_recipient }}"
     subject: "{{ ticket_subject }}"
     body: "{{ lookup('file', ticket_body_file.path) }}"
+    template_vars: "{{ template_vars }}"
     status: "{{ ticket_status }}"
     ticket_type: Question
     tags: "{{ ticket_tags }}"
@@ -39,3 +40,9 @@
   ansible.builtin.file:
     path: "{{ ticket_body_file.path }}"
     state: absent
+
+# Register details about the created ticket
+# Array, to accommodate this role to be executed in a loop
+- name: Register ticket creation result
+  ansible.builtin.set_fact:
+    ticket_details: "{{ ticket_details|default([]) + [details] }}"
