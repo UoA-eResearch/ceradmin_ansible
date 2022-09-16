@@ -110,7 +110,7 @@
     loop: "{{ ticket_details | subelements('template_vars.servers') }}"
     loop_control:
       label: "{{ item.1.id }}"
-    when: dry_run
+    when: dry_run|bool
 
   - name: Set metadata om servers as follows
     ceradmin.openstack.server_metadata:
@@ -122,4 +122,4 @@
     loop: "{{ ticket_details | subelements('template_vars.servers') }}"
     loop_control:
       label: "{{ item.1.id }}"
-    when: not dry_run
+    when: not (dry_run|bool)
