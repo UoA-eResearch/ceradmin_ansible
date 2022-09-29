@@ -1,0 +1,4 @@
+   
+# to run from cli, firstly export your application credentials to environment - see
+# - see source_nectar_env_vars.sh
+plugin: nectar_windows_inventory_plugin
