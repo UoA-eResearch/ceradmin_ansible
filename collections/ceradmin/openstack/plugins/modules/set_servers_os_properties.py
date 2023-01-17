@@ -178,7 +178,8 @@ def run_module():
 
         os_info = get_os_information_from_console_log(s)
         if os_info is None:
-            os_info = get_server_os_from_image(glance_c, server_dict["image"]["id"])
+            if "id" in server_dict["image"]:
+                os_info = get_server_os_from_image(glance_c, server_dict["image"]["id"])
 
         if os_info is None:
             if existing_os_info['os_type'] is None:
