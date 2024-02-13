@@ -49,7 +49,7 @@ servers_without_os_information:
 
 '''
 
-cer_windows_images_ids = [
+cer_windows_2012_server_images_ids = [
     'c8c88133-096f-4a71-84ba-a0bdf4aa5425', # UoA-Server2012-1.6OLD
     'c84058cb-b7d6-4317-a6cd-d9d79378ad74', # UoA-Server2012-1.7
     'db3f90df-9bc7-4a03-a42e-596428e029f2', # UoA-Server2012-1.8
@@ -65,6 +65,21 @@ cer_windows_images_ids = [
     'edb7e3b0-428b-4369-ae2b-c1c08c6a4b58', # UoA-Server2012-MATLAB-1.0
     '2fd3ea26-1f9a-4a7c-811f-84c0407c14f5', # UoA-Server2012-MATLAB-1.4
     'ee745507-bb0b-472b-95fa-4eeef9305c72' # UoA-Server2012-mfel395_test
+]
+
+cer_windows_2019_server_images_ids = [
+    'c8e2568f-35a9-4258-b196-4a52d80d271e',
+    'acbb107e-8d7a-4b7a-ae95-579063e9b016',
+    'fccd51f4-2524-465f-bcae-6a75ab201659'
+]
+
+cer_windows_10_desktop_images_ids = [
+    '8436ac08-aa9e-4942-ad7d-f9ea8c4808cb',
+    'a001fce5-0624-40fc-a821-2e5953ed1b9c'
+]
+
+cer_windows_pe_images_ids = [
+    '551b123c-8288-4fee-b693-5ba5697c9a9f'
 ]
 
 
@@ -110,8 +125,14 @@ def get_os_information_from_console_log(server):
 
 
 def get_server_os_from_image(glance_c, image_id):
-    if image_id in cer_windows_images_ids:
+    if image_id in cer_windows_2012_server_images_ids:
         return {'os_type': 'windows', 'os_family': 'server', 'os_version': '2012 r2'}
+    elif image_id in cer_windows_2019_server_images_ids:
+        return {'os_type': 'windows', 'os_family': 'server', 'os_version': '2019'}
+    elif image_id in cer_windows_10_desktop_images_ids:
+        return {'os_type': 'windows', 'os_family': 'desktop', 'os_version': '10'}
+    elif image_id in cer_windows_pe_images_ids:
+        return {'os_type': 'windows', 'os_family': 'pe', 'os_version': ''}
 
     try:
         img_det = glance_c.images.get(image_id)
@@ -121,10 +142,16 @@ def get_server_os_from_image(glance_c, image_id):
             elif '.facts/os_distro' in img_det: # Trove images
                 return {'os_type': 'linux', 'os_family': img_det['.facts/os_distro'], 'os_version': img_det['.facts/os_version']}
         elif 'base_image_ref' in img_det:
-            if img_det['base_image_ref'] in cer_windows_images_ids:
+            if img_det['base_image_ref'] in cer_windows_2012_server_images_ids:
                 return {'os_type': 'windows', 'os_family': 'server', 'os_version': '2012 r2'}
+            elif img_det['base_image_ref'] in cer_windows_2019_server_images_ids:
+                return {'os_type': 'windows', 'os_family': 'server', 'os_version': '2019'}
+            elif img_det['base_image_ref'] in cer_windows_10_desktop_images_ids:
+                return {'os_type': 'windows', 'os_family': 'desktop', 'os_version': '10'}
+            elif img_det['base_image_ref'] in cer_windows_pe_images_ids:
+                return {'os_type': 'windows', 'os_family': 'pe', 'os_version': ''}
             else:
-                return get_server_os_from_image(img_det['base_image_ref'])
+                return get_server_os_from_image(glance_c, img_det['base_image_ref'])
         elif 'os_distro' in img_det and img_det['os_distro'] == 'fedora-coreos':
             return {'os_type': 'linux', 'os_family': 'fedora coreos', 'os_version': img_det['name']}
     except HTTPNotFound:
