@@ -5,7 +5,7 @@ from __future__ import (absolute_import, division, print_function)
 import os
 from keystoneauth1 import session
 from keystoneauth1.identity import v3
-from keystoneclient.v3 import client
+from openstack.connection import Connection
 from keystoneauth1.exceptions import NotFound
 from ansible.module_utils.basic import AnsibleModule
 
@@ -78,13 +78,15 @@ def run_module():
                application_credential_id=os.environ['OS_APPLICATION_CREDENTIAL_ID'],
                application_credential_secret=os.environ['OS_APPLICATION_CREDENTIAL_SECRET'])
     sess = session.Session(auth=auth)
-    keystone_c = client.Client(session=sess)
+    conn = Connection(session=sess)
     project_id = module.params['project_id']
     tag = module.params['tag']
     try:
-        project = keystone_c.projects.get(project_id)
-        if not project.check_tag(tag):
-            project.add_tag(tag)
+        p = conn.identity.get_project(project_id)
+        tags = p.tags.copy()
+        if tag not in tags:
+            tags.append(tag)
+            conn.identity.update_project(project_id, tags=tags)
             result['changed'] = True
     except NotFound:
         module.fail_json(msg=f'No such project: {project_id}', **result)
