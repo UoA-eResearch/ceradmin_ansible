@@ -34,6 +34,7 @@ Deploy AWX Operator using config in `awx/operator`:
 
 ```
 cd ceradmin_ansible/awx
+kubectl create namespace awx
 kubectl apply -k operator
 ```
 
@@ -113,4 +114,11 @@ Check `awx` namespace for resources:
 
 ```
 kubectl -n awx get awx,all,ingress,secrets
+```
+
+Get a secret:
+
+```
+kubectl get secrets -n awx awx-admin-password -o jsonpath='{.data}'
+echo "DATA" | base64 -d
 ```
