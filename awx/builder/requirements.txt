@@ -1,0 +1,7 @@
+nectarallocationclient==1.9.0
+pyTenable==1.4.20
+python-freshdesk==1.3.9
+python-glanceclient==4.5.0
+python-keystoneclient==5.4.0
+python-neutronclient==11.2.0
+python-novaclient==18.5.0
