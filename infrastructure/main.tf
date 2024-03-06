@@ -92,6 +92,6 @@ resource "openstack_dns_recordset_v2" "awx_recordset" {
   ttl     = 300
   type    = "A"
   records = [
-    openstack_compute_instance_v2.awx_instance.network[network_index].fixed_ip_v4
+    openstack_compute_instance_v2.awx_instance.network[local.network_index].fixed_ip_v4
   ]
 }
