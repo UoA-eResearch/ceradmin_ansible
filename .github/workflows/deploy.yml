@@ -26,11 +26,11 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform fmt
-        run: terraform fmt -check -recursive
+        run: terraform -chdir=infrastructure/ fmt -check -recursive
         continue-on-error: true
 
       - name: Initialise Terraform
-        run: terraform init
+        run: terraform -chdir=infrastructure/ init
       
       - name : Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform -chdir=infrastructure/ plan -out=tfplan
