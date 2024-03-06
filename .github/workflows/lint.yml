@@ -29,4 +29,4 @@ jobs:
       #   run: tflint --chdir=infrastructure/
 
       - name: Check repository variable
-        run: echo $AVAILABILITY_ZONE
+        run: echo ${{ vars.AVAILABILITY_ZONE }}
