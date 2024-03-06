@@ -24,6 +24,7 @@ provider "openstack" {
 }
 
 resource "openstack_compute_keypair_v2" "awx_keypair" {
+  # Get the key from tfstate after deployment
   name = "awx_keypair"
 }
 
@@ -74,14 +75,23 @@ resource "openstack_compute_instance_v2" "awx_instance" {
 
   security_groups = [
     "default",
+    # Documentation states that the name is needed, but the ID is the only property that works
     openstack_networking_secgroup_v2.awx_secgroup.id
   ]
+}
+
+locals {
+  # Instances have an "auckland-public" and "auckland-public-data" network
+  # The "auckland-public" network is the one we want, so find the index of it in the network block
+  network_index = index(openstack_compute_instance_v2.awx_instance.network.*.name, "auckland-public")
 }
 
 resource "openstack_dns_recordset_v2" "awx_recordset" {
   zone_id = var.dns_zone
   name    = "awx.auckland-cer.cloud.edu.au."
-  ttl     = 3000
+  ttl     = 300
   type    = "A"
-  records = [openstack_compute_instance_v2.awx_instance.access_ip_v4]
+  records = [
+    openstack_compute_instance_v2.awx_instance.network[network_index].fixed_ip_v4
+  ]
 }
