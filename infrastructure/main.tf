@@ -15,7 +15,7 @@ terraform {
 # Configure the OpenStack Provider
 provider "openstack" {
   auth_url       = var.auth_url
-  user_name      = var.user_name
+  user_name      = var.username
   password       = var.password
   tenant_id      = var.project_id
   tenant_name    = var.project_name

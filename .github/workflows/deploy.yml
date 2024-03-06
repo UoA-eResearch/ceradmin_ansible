@@ -1,0 +1,36 @@
+name: Deploy Infrastructure
+
+on: workflow_call
+
+jobs:
+  deploy_infrastructure:
+    runs-on: ubuntu-latest
+
+    env:
+      TF_VAR_user_name: ${{ secrets.USER_NAME }}
+      TF_VAR_password: ${{ secrets.PASSWORD }}
+      TF_VAR_auth_url: ${{ vars.AUTH_URL }}
+      TF_VAR_region: ${{ vars.REGION }}
+      TF_VAR_project_id: ${{ vars.PROJECT_ID }}
+      TF_VAR_project_name: ${{ vars.PROJECT_NAME }}
+      TF_VAR_availability_zone: ${{ vars.AVAILABILITY_ZONE }}
+      TF_VAR_image_id: ${{ vars.IMAGE_ID }}
+      TF_VAR_flavor_id: ${{ vars.FLAVOR_ID }}
+      TF_VAR_dns_zone: ${{ vars.DNS_ZONE }}
+    
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Initialise Terraform
+        run: terraform init
+      
+      - name : Terraform Plan
+        run: terraform plan -out=tfplan

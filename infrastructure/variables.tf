@@ -1,3 +1,15 @@
+variable "username" {
+  description = "The user name"
+  type        = string
+  default     = null
+}
+
+variable "password" {
+  description = "The password"
+  type        = string
+  default     = null
+}
+
 variable "auth_url" {
   description = "The identity authentication URL"
   type        = string
@@ -9,18 +21,6 @@ variable "region" {
   type        = string
   default     = null
 
-}
-
-variable "user_name" {
-  description = "The user name"
-  type        = string
-  default     = null
-}
-
-variable "password" {
-  description = "The password"
-  type        = string
-  default     = null
 }
 
 variable "project_id" {

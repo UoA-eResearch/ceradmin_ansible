@@ -1,0 +1,12 @@
+name: Tag and Release
+
+on:
+  push:
+    branches:
+      - "*"
+    # tags:
+    #   - "v*.*.*"
+
+jobs:
+  useCallable:
+    uses: ./.github/workflows/deploy.yml
