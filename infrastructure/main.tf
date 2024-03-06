@@ -83,7 +83,7 @@ resource "openstack_compute_instance_v2" "awx_instance" {
 locals {
   # Instances have an "auckland-public" and "auckland-public-data" network
   # The "auckland-public" network is the one we want, so find the index of it in the network block
-  network_index = index(openstack_compute_instance_v2.awx_instance.network.*.name, "auckland-public")
+  network_index = index(openstack_compute_instance_v2.awx_instance.network[*].name, "auckland-public")
 }
 
 resource "openstack_dns_recordset_v2" "awx_recordset" {
