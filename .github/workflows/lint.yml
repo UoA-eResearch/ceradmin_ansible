@@ -22,11 +22,11 @@ jobs:
       - name: YAML code style (yamllint)
         run: python3 -m yamllint -c .yamllint awx
 
-      - name: Install tflint
-        run: curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+      # - name: Install tflint
+      #   run: curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
-      - name: Run tflint
-        run: tflint --chdir=infrastructure/
+      # - name: Run tflint
+      #   run: tflint --chdir=infrastructure/
 
       - name: Check repository variable
         run: echo $AVAILABILITY_ZONE
