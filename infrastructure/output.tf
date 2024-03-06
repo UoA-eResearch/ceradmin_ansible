@@ -4,9 +4,9 @@ output "awx_private_key" {
 }
 
 output "awx_instance_public_ip_address_1" {
-  value     = openstack_compute_instance_v2.awx_instance.network[0].fixed_ip_v4
+  value = openstack_compute_instance_v2.awx_instance.network[0].fixed_ip_v4
 }
 
 output "awx_instance_public_ip_address_2" {
-  value     = openstack_compute_instance_v2.awx_instance.network[1].fixed_ip_v4
+  value = openstack_compute_instance_v2.awx_instance.network[1].fixed_ip_v4
 }
