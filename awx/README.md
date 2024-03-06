@@ -91,8 +91,8 @@ pip install ansible-builder
 Build the image:
 
 ```
-cd ceradmin_ansible/awx/builder
-$USER/.local/bin/ansible-builder build --tag awx.auckland-cer.cloud.edu.au:5000/awx-custom-image:latest --container-runtime=docker --verbosity 3
+cd ~/ceradmin_ansible/awx/builder
+/home/$USER/.local/bin/ansible-builder build --tag awx.auckland-cer.cloud.edu.au:5000/awx-custom-image:latest --container-runtime=docker --verbosity 3
 ```
 
 Push the Docker image to the local registry:
