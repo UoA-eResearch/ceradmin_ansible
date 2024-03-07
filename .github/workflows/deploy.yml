@@ -30,9 +30,6 @@ jobs:
         with:
           cli_config_credentials_token: ${{ vars.TF_API_TOKEN }}
 
-      - name: Authenticate with Terraform Cloud
-        run: terraform -chdir=infrastructure/ login
-
       - name: Initialise Terraform
         run: terraform -chdir=infrastructure/ init
 
