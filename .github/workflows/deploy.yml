@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      # Terraform variables
       TF_VAR_user_name: ${{ secrets.USER_NAME }}
       TF_VAR_password: ${{ secrets.PASSWORD }}
       TF_VAR_auth_url: ${{ vars.AUTH_URL }}
@@ -17,6 +18,10 @@ jobs:
       TF_VAR_image_id: ${{ vars.IMAGE_ID }}
       TF_VAR_flavor_id: ${{ vars.FLAVOR_ID }}
       TF_VAR_dns_zone: ${{ vars.DNS_ZONE }}
+      # Terraform Cloud variables
+      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      TF_WORKSPACE : ${{ vars.TF_WORKSPACE }}
+      TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
     
     steps:
       - name: Check out repository code
@@ -25,12 +30,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform fmt
-        run: terraform -chdir=infrastructure/ fmt -check -recursive
-        continue-on-error: true
+      - name: Authenticate with Terraform Cloud
+        run: terraform login
 
       - name: Initialise Terraform
         run: terraform -chdir=infrastructure/ init
-      
+
       - name : Terraform Plan
-        run: terraform -chdir=infrastructure/ plan -out=tfplan
+        run: terraform -chdir=infrastructure/ plan

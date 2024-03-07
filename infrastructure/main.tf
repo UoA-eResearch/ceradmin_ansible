@@ -7,8 +7,12 @@ terraform {
       version = "~> 1.53.0"
     }
   }
-  backend "local" {
-    path = "terraform.tfstate"
+  cloud {
+    organization = "ceruoa"
+
+    workspaces {
+      name = "ceruoa-ceradmin_ansible"
+    }
   }
 }
 
