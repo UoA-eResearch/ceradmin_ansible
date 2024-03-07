@@ -30,9 +30,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Authenticate with Terraform Cloud
-        run: terraform login
-
       - name: Initialise Terraform
         run: terraform -chdir=infrastructure/ init
 
