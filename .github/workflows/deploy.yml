@@ -8,18 +8,16 @@ jobs:
 
     env:
       # Terraform variables
-      TF_VAR_user_name: ${{ secrets.USER_NAME }}
-      TF_VAR_password: ${{ secrets.PASSWORD }}
-      TF_VAR_auth_url: ${{ vars.AUTH_URL }}
-      TF_VAR_region: ${{ vars.REGION }}
-      TF_VAR_project_id: ${{ vars.PROJECT_ID }}
-      TF_VAR_project_name: ${{ vars.PROJECT_NAME }}
-      TF_VAR_availability_zone: ${{ vars.AVAILABILITY_ZONE }}
-      TF_VAR_image_id: ${{ vars.IMAGE_ID }}
-      TF_VAR_flavor_id: ${{ vars.FLAVOR_ID }}
-      TF_VAR_dns_zone: ${{ vars.DNS_ZONE }}
-      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
-
+      TF_VAR_os_username: ${{ secrets.OS_USERNAME }}
+      TF_VAR_os_password: ${{ secrets.OS_PASSWORD }}
+      TF_VAR_os_auth_url: ${{ vars.OS_AUTH_URL }}
+      TF_VAR_os_region: ${{ vars.OS_REGION }}
+      TF_VAR_os_project_id: ${{ vars.OS_PROJECT_ID }}
+      TF_VAR_os_project_name: ${{ vars.OS_PROJECT_NAME }}
+      TF_VAR_os_availability_zone: ${{ vars.OS_AVAILABILITY_ZONE }}
+      TF_VAR_os_image_id: ${{ vars.OS_IMAGE_ID }}
+      TF_VAR_os_flavor_id: ${{ vars.OS_FLAVOR_ID }}
+      TF_VAR_os_dns_zone: ${{ vars.OS_DNS_ZONE }}
     
     steps:
       - name: Check out repository code
@@ -28,7 +26,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          cli_config_credentials_token: ${{ vars.TF_API_TOKEN }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Initialise Terraform
         run: terraform -chdir=infrastructure/ init

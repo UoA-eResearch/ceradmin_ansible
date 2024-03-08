@@ -18,12 +18,12 @@ terraform {
 
 # Configure the OpenStack Provider
 provider "openstack" {
-  auth_url       = var.auth_url
-  user_name      = var.username
-  password       = var.password
-  tenant_id      = var.project_id
-  tenant_name    = var.project_name
-  region         = var.region
+  auth_url       = var.os_auth_url
+  user_name      = var.os_username
+  password       = var.os_password
+  tenant_id      = var.os_project_id
+  tenant_name    = var.os_project_name
+  region         = var.os_region
   enable_logging = true
 }
 
@@ -35,7 +35,7 @@ resource "openstack_compute_keypair_v2" "awx_keypair" {
 resource "openstack_networking_secgroup_v2" "awx_secgroup" {
   name        = "awx_secgroup"
   description = "Security group for the AWX instance"
-  tenant_id   = var.project_id
+  tenant_id   = var.os_project_id
 }
 
 variable "ip_address_ranges" {
@@ -53,7 +53,7 @@ resource "openstack_networking_secgroup_rule_v2" "awx_secgroup_rules_ssh" {
   port_range_max    = 22
   remote_ip_prefix  = var.ip_address_ranges[count.index]
   security_group_id = openstack_networking_secgroup_v2.awx_secgroup.id
-  tenant_id         = var.project_id
+  tenant_id         = var.os_project_id
 }
 
 resource "openstack_networking_secgroup_rule_v2" "awx_secgroup_rules_https" {
@@ -66,15 +66,15 @@ resource "openstack_networking_secgroup_rule_v2" "awx_secgroup_rules_https" {
   port_range_max    = 443
   remote_ip_prefix  = var.ip_address_ranges[count.index]
   security_group_id = openstack_networking_secgroup_v2.awx_secgroup.id
-  tenant_id         = var.project_id
+  tenant_id         = var.os_project_id
 }
 
 resource "openstack_compute_instance_v2" "awx_instance" {
   name              = "awx_instance"
-  image_id          = var.image_id
-  flavor_id         = var.flavor_id
+  image_id          = var.os_image_id
+  flavor_id         = var.os_flavor_id
   key_pair          = openstack_compute_keypair_v2.awx_keypair.name
-  availability_zone = var.availability_zone
+  availability_zone = var.os_availability_zone
   user_data         = file("${path.module}/userdata.sh")
 
   security_groups = [
@@ -91,7 +91,7 @@ locals {
 }
 
 resource "openstack_dns_recordset_v2" "awx_recordset" {
-  zone_id = var.dns_zone
+  zone_id = var.os_dns_zone
   name    = "awx.auckland-cer.cloud.edu.au."
   ttl     = 300
   type    = "A"
