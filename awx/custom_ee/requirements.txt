@@ -1,7 +1,0 @@
-keystoneauth1
-python-keystoneclient
-python-novaclient
-python-neutronclient
-python-glanceclient
-python-freshdesk
-nectarallocationclient

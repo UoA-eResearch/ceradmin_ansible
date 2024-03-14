@@ -1,0 +1,11 @@
+name: Tag and Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  useCallable:
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit

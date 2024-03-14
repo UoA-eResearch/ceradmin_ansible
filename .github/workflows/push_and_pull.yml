@@ -1,0 +1,10 @@
+name: Push and Pull
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  useCallable:
+    uses: ./.github/workflows/lint.yml

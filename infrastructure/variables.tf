@@ -1,0 +1,60 @@
+variable "os_username" {
+  description = "The user name"
+  type        = string
+  default     = null
+}
+
+variable "os_password" {
+  description = "The password"
+  type        = string
+  default     = null
+}
+
+variable "os_auth_url" {
+  description = "The identity authentication URL"
+  type        = string
+  default     = null
+}
+
+variable "os_region" {
+  description = "The region to use for the instance"
+  type        = string
+  default     = null
+
+}
+
+variable "os_project_id" {
+  description = "The target project ID"
+  type        = string
+  default     = null
+}
+
+variable "os_project_name" {
+  description = "The target project name"
+  type        = string
+  default     = null
+}
+
+variable "os_availability_zone" {
+  description = "The availability zone to use for the instance"
+  type        = string
+  default     = null
+}
+
+variable "os_image_id" {
+  description = "The ID of the image to use for the instance"
+  type        = string
+  default     = null
+}
+
+variable "os_flavor_id" {
+  description = "The ID of the flavor to use for the instance"
+  type        = string
+  default     = null
+}
+
+variable "os_dns_zone" {
+  description = "The DNS zone ID to use for the instance"
+  type        = string
+  default     = null
+}

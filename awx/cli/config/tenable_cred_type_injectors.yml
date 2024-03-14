@@ -1,6 +1,0 @@
-env:
-  TENABLE_HOST: '{{ tenable_host }}'
-  TENABLE_PORT: '{{ tenable_port}}'
-  TENABLE_AGENT_GROUP: '{{ tenable_agent_group }}'
-  TENABLE_LINKING_KEY: '{{ linking_key }}'
-
