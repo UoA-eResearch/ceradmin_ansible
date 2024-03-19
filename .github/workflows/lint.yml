@@ -22,8 +22,16 @@ jobs:
       - name: YAML code style (yamllint)
         run: python3 -m yamllint -c .yamllint awx
 
-      # - name: Install tflint
-      #   run: curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+      - name: Setup tflint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
 
-      # - name: Run tflint
-      #   run: tflint --chdir=infrastructure/
+      - name: Show tflint version
+        run: tflint --chdir=infrastructure/ --version
+
+      - name: Initialize tflint
+        run: tflint --chdir=infrastructure/ --init
+
+      - name: Run tflint
+        run: tflint --chdir=infrastructure/ -f compact

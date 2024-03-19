@@ -1,2 +1,4 @@
 flake8==7.0.0
+flake8-docstrings==1.7.0
+pur==7.3.1
 yamllint==1.35.1
