@@ -13,7 +13,7 @@ Install requirements:
 
 ```
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y git make curl
+sudo apt install -y git make curl ca-certificates python3-pip
 ```
 
 Install k3s:
@@ -25,6 +25,7 @@ curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
 Clone this repository:
 
 ```
+cd ~
 git clone https://github.com/UoA-eResearch/ceradmin_ansible.git
 ```
 
@@ -64,12 +65,60 @@ Deploy AWX:
 kubectl apply -k awx
 ```
 
-### Create Local Docker Registry
+### Install Docker
 
-Install Docker, configure the Docker environment (add registry and allow HTTP connections):
+Remove any any existing Docker packages:
 
 ```
-./registry/configure.sh
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove -y $pkg; done
+```
+
+Install Docker Engine:
+
+```
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo usermod -aG docker ubuntu
+```
+
+### Create Local Docker Registry
+
+Add the Docker registry:
+
+```
+sudo rm -f /etc/rancher/k3s/registries.yaml
+echo 'mirrors:' | sudo tee -a /etc/rancher/k3s/registries.yaml
+echo ' "awx.auckland-cer.cloud.edu.au:5000":' | sudo tee -a /etc/rancher/k3s/registries.yaml
+echo '   endpoint:' | sudo tee -a /etc/rancher/k3s/registries.yaml
+echo '     - "http://awx.auckland-cer.cloud.edu.au:5000"' | sudo tee -a /etc/rancher/k3s/registries.yaml
+```
+
+Allow HTTP registry:
+
+```
+sudo rm -f /etc/docker/daemon.json
+echo '{ "insecure-registries":["awx.auckland-cer.cloud.edu.au:5000"] }' | sudo tee -a /etc/docker/daemon.json
+```
+
+Include the registry in the Docker configuration:
+
+```
+sudo rm -f /etc/default/docker
+echo 'DOCKER_OPTS="--config-file=/etc/docker/daemon.json"' | sudo tee -a /etc/default/docker
+```
+
+Stop and start the Docker service:
+
+```
+sudo systemctl stop docker.service
+sudo systemctl start docker.service
 ```
 
 Deploy local docker registry:
@@ -84,7 +133,6 @@ kubectl apply -k registry
 Install Pip and the Ansible builder:
 
 ```
-sudo apt install python3-pip
 pip install ansible-builder
 ```
 

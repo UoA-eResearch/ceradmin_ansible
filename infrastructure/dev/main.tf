@@ -8,32 +8,32 @@ terraform {
     }
   }
   cloud {
-    organization = "ceruoa"
+    organization = "uoa_cer"
 
     workspaces {
-      name = "ceruoa-ceradmin_ansible"
+      name = "awx_dev"
     }
   }
 }
 
 # Configure the OpenStack Provider
 provider "openstack" {
-  auth_url       = var.os_auth_url
-  user_name      = var.os_username
-  password       = var.os_password
-  tenant_id      = var.os_project_id
-  tenant_name    = var.os_project_name
-  region         = var.os_region
-  enable_logging = true
+  auth_url                      = var.os_auth_url
+  application_credential_id     = var.os_application_credential_id
+  application_credential_secret = var.os_application_credential_secret
+  tenant_id                     = var.os_project_id
+  tenant_name                   = var.os_project_name
+  region                        = var.os_region
+  enable_logging                = true
 }
 
 resource "openstack_compute_keypair_v2" "awx_keypair" {
   # Get the key from tfstate after deployment
-  name = "awx_keypair"
+  name = "tlau020_awx_keypair"
 }
 
 resource "openstack_networking_secgroup_v2" "awx_secgroup" {
-  name        = "awx_secgroup"
+  name        = "tlau020_awx_secgroup"
   description = "Security group for the AWX instance"
   tenant_id   = var.os_project_id
 }
@@ -70,12 +70,11 @@ resource "openstack_networking_secgroup_rule_v2" "awx_secgroup_rules_https" {
 }
 
 resource "openstack_compute_instance_v2" "awx_instance" {
-  name              = "awx_instance"
+  name              = "tlau020_awx_instance"
   image_id          = var.os_image_id
   flavor_id         = var.os_flavor_id
   key_pair          = openstack_compute_keypair_v2.awx_keypair.name
   availability_zone = var.os_availability_zone
-  user_data         = file("${path.module}/userdata.sh")
 
   security_groups = [
     "default",

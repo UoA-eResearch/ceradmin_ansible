@@ -1,11 +1,11 @@
-variable "os_username" {
-  description = "The user name"
+variable "os_application_credential_id" {
+  description = "The application credential ID"
   type        = string
   default     = null
 }
 
-variable "os_password" {
-  description = "The password"
+variable "os_application_credential_secret" {
+  description = "The application credential secret"
   type        = string
   default     = null
 }
